@@ -53,13 +53,23 @@ void setup() {
   
   wattson.begin(); // Pass in the appropriate address. Defaults to 0x74
 
+  int accumIntervalReg; 
+
+  wattson.readAccumulationIntervalRegister(&accumIntervalReg);
+
+  Serial.print("Accumulation interval is "); Serial.println(accumIntervalReg);
+
+  delay(100);
+
   // Turn off any previous energy accumulation
+  Serial.println("Turn off any previous accumulation");
   wattson.enableEnergyAccumulation(false);
 
   // Wait for sometime for registers to reset before re-enabling them
   delay(1000);
   
   // Turn on energy accumulation
+  Serial.println("Re-enable accumulation");
   wattson.enableEnergyAccumulation(true);
 }
  

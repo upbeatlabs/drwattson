@@ -69,19 +69,14 @@ void loop() {
   UpbeatLabs_MCP39F521_Data data;
   UpbeatLabs_MCP39F521_FormattedData fData;
 
-  UpbeatLabs_MCP39F521_AccumData aData;
-  UpbeatLabs_MCP39F521_FormattedAccumData afData;
-
-  int readMCPretval = wattson.read(&data, &aData);
+  int readMCPretval = wattson.read(&data, NULL);
   if (readMCPretval == UpbeatLabs_MCP39F521::SUCCESS) {
     // Print stuff out
     Serial.write("\x1B" "c"); // Clear the screen on a regular terminal                               
     wattson.convertRawData(&data, &fData);
-    wattson.convertRawAccumData(&aData, &afData);
     printMCP39F521Data(&fData);
-    printMCP39F521AccumData(&afData);
   } else {
-   Serial.println("Error!"); 
+    Serial.print("Error returned! "); Serial.println(readMCPretval);
   }
 
   delay(1000);               // wait for a second
@@ -124,12 +119,4 @@ void printMCP39F521Data(UpbeatLabs_MCP39F521_FormattedData *data)
   Serial.print(F("Active Power = ")); Serial.println(data->activePower, 4);
   Serial.print(F("Reactive Power = ")); Serial.println(data->reactivePower, 4);
   Serial.print(F("Apparent Power = ")); Serial.println(data->apparentPower, 4);
-}
-
-void printMCP39F521AccumData(UpbeatLabs_MCP39F521_FormattedAccumData *data)
-{
-  Serial.print("Active Energy Import = "); Serial.println(data->activeEnergyImport, 4);
-  Serial.print("Active Energy Export = "); Serial.println(data->activeEnergyExport, 4);
-  Serial.print("Reactive Energy Import = "); Serial.println(data->reactiveEnergyImport, 4);
-  Serial.print("Reactive Energy Export = "); Serial.println(data->reactiveEnergyExport, 4);
 }

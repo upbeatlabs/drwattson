@@ -53,11 +53,32 @@ UpbeatLabs_MCP39F521::UpbeatLabs_MCP39F521(void) {
 
 // Call begin to start using the module
 
+// There is a bug in current MCP39F511/521 where energy accumulation
+// values are off if the energy accumulation interval is
+// anything but 2. This applies the workaround for that problem.
+// To be removed for chips that have the issue fixed. 
+
 void UpbeatLabs_MCP39F521::begin(uint8_t _addr)
 {
   i2c_addr = _addr;
 
   Wire.begin();
+
+  int retVal = SUCCESS;
+  bool enabled = false;
+  retVal = isEnergyAccumulationEnabled(&enabled);
+
+  if (retVal == SUCCESS && enabled) {
+    // First, note the accumulation interval. If it is anything
+    // other than the default (2), note the correction
+    // factor that has to be applied to the energy
+    // accumulation.
+    int accumIntervalReg; 
+    
+    retVal = readAccumulationIntervalRegister(&accumIntervalReg);
+    
+    _energy_accum_correction_factor = (accumIntervalReg - 2);
+  }
   
 }
 
@@ -130,28 +151,51 @@ int UpbeatLabs_MCP39F521::read(UpbeatLabs_MCP39F521_Data *output,
   if (retval != SUCCESS) {
     return retval;
   } else {
-
+    
     if (accumOutput) {
-      accumOutput->activeEnergyImport = (((uint64_t)aucReadDataBuf[9]) << 56 |
-                                         ((uint64_t)aucReadDataBuf[8]) << 48 |
-                                         ((uint64_t)aucReadDataBuf[7]) << 40 |
-                                         ((uint64_t)aucReadDataBuf[6]) << 32 |
-                                         (uint64_t)(aucReadDataBuf[5]) << 24 |
-                                         (uint64_t)(aucReadDataBuf[4]) << 16 |
-                                         (uint64_t)(aucReadDataBuf[3] << 8) |
-                                         (uint64_t)aucReadDataBuf[2]);
-      accumOutput->activeEnergyExport = (((uint64_t)aucReadDataBuf[17]) << 56 |
-                                         ((uint64_t)aucReadDataBuf[16]) << 48 |
-                                         ((uint64_t)aucReadDataBuf[15]) << 40 |
-                                         ((uint64_t)aucReadDataBuf[14]) << 32 |
-                                         (uint64_t)(aucReadDataBuf[13]) << 24 |
-                                         (uint64_t)(aucReadDataBuf[12]) << 16 |
-                                         (uint64_t)(aucReadDataBuf[11] << 8) |
-                                         (uint64_t)aucReadDataBuf[10]);
+      if (_energy_accum_correction_factor == -1)  {
+        accumOutput->activeEnergyImport =  (((uint64_t)aucReadDataBuf[9]) << 56 |
+                                            ((uint64_t)aucReadDataBuf[8]) << 48 |
+                                            ((uint64_t)aucReadDataBuf[7]) << 40 |
+                                            ((uint64_t)aucReadDataBuf[6]) << 32 |
+                                            (uint64_t)(aucReadDataBuf[5]) << 24 |
+                                            (uint64_t)(aucReadDataBuf[4]) << 16 |
+                                            (uint64_t)(aucReadDataBuf[3] << 8) |
+                                            (uint64_t)aucReadDataBuf[2]) /
+                                           2;
+        accumOutput->activeEnergyExport =  (((uint64_t)aucReadDataBuf[17]) << 56 |
+                                            ((uint64_t)aucReadDataBuf[16]) << 48 |
+                                            ((uint64_t)aucReadDataBuf[15]) << 40 |
+                                            ((uint64_t)aucReadDataBuf[14]) << 32 |
+                                            (uint64_t)(aucReadDataBuf[13]) << 24 |
+                                            (uint64_t)(aucReadDataBuf[12]) << 16 |
+                                            (uint64_t)(aucReadDataBuf[11] << 8) |
+                                            (uint64_t)aucReadDataBuf[10]) /
+                                          2;
+      } else {
+        accumOutput->activeEnergyImport =  (((uint64_t)aucReadDataBuf[9]) << 56 |
+                                            ((uint64_t)aucReadDataBuf[8]) << 48 |
+                                            ((uint64_t)aucReadDataBuf[7]) << 40 |
+                                            ((uint64_t)aucReadDataBuf[6]) << 32 |
+                                            (uint64_t)(aucReadDataBuf[5]) << 24 |
+                                            (uint64_t)(aucReadDataBuf[4]) << 16 |
+                                            (uint64_t)(aucReadDataBuf[3] << 8) |
+                                            (uint64_t)aucReadDataBuf[2]) *
+                                           ( 1 << _energy_accum_correction_factor);
+        accumOutput->activeEnergyExport =  (((uint64_t)aucReadDataBuf[17]) << 56 |
+                                            ((uint64_t)aucReadDataBuf[16]) << 48 |
+                                            ((uint64_t)aucReadDataBuf[15]) << 40 |
+                                            ((uint64_t)aucReadDataBuf[14]) << 32 |
+                                            (uint64_t)(aucReadDataBuf[13]) << 24 |
+                                            (uint64_t)(aucReadDataBuf[12]) << 16 |
+                                            (uint64_t)(aucReadDataBuf[11] << 8) |
+                                            (uint64_t)aucReadDataBuf[10]) *
+                                           (1 << _energy_accum_correction_factor);
+      }
+
     }
-
   }
-
+  
   delay(100);
 
   retval = registerReadNBytes(0x00, 0x2e, 16, aucReadDataBuf, 19);
@@ -161,22 +205,46 @@ int UpbeatLabs_MCP39F521::read(UpbeatLabs_MCP39F521_Data *output,
   } else {
 
     if (accumOutput) {
-      accumOutput->reactiveEnergyImport = (((uint64_t)aucReadDataBuf[9]) << 56 |
-                                           ((uint64_t)aucReadDataBuf[8]) << 48 |
-                                           ((uint64_t)aucReadDataBuf[7]) << 40 |
-                                           ((uint64_t)aucReadDataBuf[6]) << 32 |
-                                           (uint64_t)(aucReadDataBuf[5]) << 24 |
-                                           (uint64_t)(aucReadDataBuf[4]) << 16 |
-                                           (uint64_t)(aucReadDataBuf[3] << 8) |
-                                           (uint64_t)aucReadDataBuf[2]);
-      accumOutput->reactiveEnergyExport = (((uint64_t)aucReadDataBuf[17]) << 56 |
-                                           ((uint64_t)aucReadDataBuf[16]) << 48 |
-                                           ((uint64_t)aucReadDataBuf[15]) << 40 |
-                                           ((uint64_t)aucReadDataBuf[14]) << 32 |
-                                           (uint64_t)(aucReadDataBuf[13]) << 24 |
-                                           (uint64_t)(aucReadDataBuf[12]) << 16 |
-                                           (uint64_t)(aucReadDataBuf[11] << 8) |
-                                           (uint64_t)aucReadDataBuf[10]);
+      if (_energy_accum_correction_factor == -1)  {
+        accumOutput->reactiveEnergyImport =  (((uint64_t)aucReadDataBuf[9]) << 56 |
+                                              ((uint64_t)aucReadDataBuf[8]) << 48 |
+                                              ((uint64_t)aucReadDataBuf[7]) << 40 |
+                                              ((uint64_t)aucReadDataBuf[6]) << 32 |
+                                              (uint64_t)(aucReadDataBuf[5]) << 24 |
+                                              (uint64_t)(aucReadDataBuf[4]) << 16 |
+                                              (uint64_t)(aucReadDataBuf[3] << 8) |
+                                              (uint64_t)aucReadDataBuf[2]) /
+                                             2;
+        accumOutput->reactiveEnergyExport =  (((uint64_t)aucReadDataBuf[17]) << 56 |
+                                              ((uint64_t)aucReadDataBuf[16]) << 48 |
+                                              ((uint64_t)aucReadDataBuf[15]) << 40 |
+                                              ((uint64_t)aucReadDataBuf[14]) << 32 |
+                                              (uint64_t)(aucReadDataBuf[13]) << 24 |
+                                              (uint64_t)(aucReadDataBuf[12]) << 16 |
+                                              (uint64_t)(aucReadDataBuf[11] << 8) |
+                                              (uint64_t)aucReadDataBuf[10]) /
+                                             2;
+
+      } else {
+        accumOutput->reactiveEnergyImport =  (((uint64_t)aucReadDataBuf[9]) << 56 |
+                                              ((uint64_t)aucReadDataBuf[8]) << 48 |
+                                              ((uint64_t)aucReadDataBuf[7]) << 40 |
+                                              ((uint64_t)aucReadDataBuf[6]) << 32 |
+                                              (uint64_t)(aucReadDataBuf[5]) << 24 |
+                                              (uint64_t)(aucReadDataBuf[4]) << 16 |
+                                              (uint64_t)(aucReadDataBuf[3] << 8) |
+                                              (uint64_t)aucReadDataBuf[2]) *
+                                            (1 << _energy_accum_correction_factor);
+        accumOutput->reactiveEnergyExport =  (((uint64_t)aucReadDataBuf[17]) << 56 |
+                                              ((uint64_t)aucReadDataBuf[16]) << 48 |
+                                              ((uint64_t)aucReadDataBuf[15]) << 40 |
+                                              ((uint64_t)aucReadDataBuf[14]) << 32 |
+                                              (uint64_t)(aucReadDataBuf[13]) << 24 |
+                                              (uint64_t)(aucReadDataBuf[12]) << 16 |
+                                              (uint64_t)(aucReadDataBuf[11] << 8) |
+                                              (uint64_t)aucReadDataBuf[10]) *
+                                            (1 << _energy_accum_correction_factor);
+      }
     }
     
   }  
@@ -486,10 +554,25 @@ int UpbeatLabs_MCP39F521::pageWriteEEPROM(int pageNum, uint8_t *byteArray,
 // (defaults to 1w). Therefore any energy over 1w
 // gets accumulated over time.
 
+// There is a bug in current MCP39F511/521 where energy accumulation
+// values are off if the energy accumulation interval is
+// anything but 2. This applies the workaround for that problem.
+// To be removed for chips that have the issue fixed. 
+
 int UpbeatLabs_MCP39F521::enableEnergyAccumulation(bool enable)
 {
   int retVal;
   uint8_t byteArray[2];
+
+  // First, note the accumulation interval. If it is anything
+  // other than the default (2), note the correction
+  // factor that has to be applied to the energy
+  // accumulation.
+  int accumIntervalReg; 
+
+  retVal = readAccumulationIntervalRegister(&accumIntervalReg);
+
+  _energy_accum_correction_factor = (accumIntervalReg - 2);
 
   byteArray[0] = enable;
   byteArray[1] = 0;
@@ -501,6 +584,24 @@ int UpbeatLabs_MCP39F521::enableEnergyAccumulation(bool enable)
     return retVal;
   }
   return SUCCESS;  
+
+}
+
+int UpbeatLabs_MCP39F521::isEnergyAccumulationEnabled(bool *enabled)
+{
+  int retVal;
+  uint8_t readArray[5];
+  int readValue;
+
+  retVal = registerReadNBytes(0x00, 0xDC, 2, readArray, 5);
+
+  if (retVal != SUCCESS) {
+    return retVal;
+  } else {
+    *enabled = readArray[2];
+  }
+
+  return SUCCESS;
 
 }
 
@@ -1097,12 +1198,13 @@ int UpbeatLabs_MCP39F521::resetCalibration()
     return retVal;
   }
 
-  retVal = setAccumulationIntervalRegister(2); // Accumulation interval 5
+  retVal = setAccumulationIntervalRegister(5); // Accumulation interval 5
   if (retVal != SUCCESS) {
     return retVal;
   }
 
-  delay(100);
+  // We need to apply correction factor where accumulation interval is not 2;
+  _energy_accum_correction_factor = (5 - 2);
 
   UpbeatLabs_MCP39F521_DesignConfigData data;
   
