@@ -221,6 +221,7 @@ public:
   // Energy Accumulation methods
 
   int enableEnergyAccumulation(bool enable);
+  int isEnergyAccumulationEnabled(bool *enabled);
 
   // Helper methods
   
@@ -298,6 +299,7 @@ private:
   int checkHeader( int header);
 
   uint8_t i2c_addr;
+  int _energy_accum_correction_factor;
 };
   
 
