@@ -111,48 +111,53 @@ int UpbeatLabs_MCP39F521::read(UpbeatLabs_MCP39F521_Data *output,
   int i;
   int retval = SUCCESS;
 
-  retval = registerReadNBytes(0x00, 0x02, 28, aucReadDataBuf, 35);
+  if (output) {
+
+    retval = registerReadNBytes(0x00, 0x02, 28, aucReadDataBuf, 35);
   
-  if (retval != SUCCESS) {
-    return retval;
-  } else {
+    if (retval != SUCCESS) {
+      return retval;
+    } else {
     
-    /* System status */
-    output->systemStatus = ((aucReadDataBuf[3] << 8) | aucReadDataBuf[2]);
-    output->systemVersion = ((aucReadDataBuf[5] << 8) | aucReadDataBuf[4]);
-    output->voltageRMS = ((aucReadDataBuf[7] << 8) | aucReadDataBuf[6]);
-    output->lineFrequency = ((aucReadDataBuf[9] << 8) | aucReadDataBuf[8]);
-    output->analogInputVoltage = ((aucReadDataBuf[11] << 8) | aucReadDataBuf[10]);
-    output->powerFactor = (((signed char)aucReadDataBuf[13] << 8) +
-                           (unsigned char)aucReadDataBuf[12]);
+      /* System status */
+      output->systemStatus = ((aucReadDataBuf[3] << 8) | aucReadDataBuf[2]);
+      output->systemVersion = ((aucReadDataBuf[5] << 8) | aucReadDataBuf[4]);
+      output->voltageRMS = ((aucReadDataBuf[7] << 8) | aucReadDataBuf[6]);
+      output->lineFrequency = ((aucReadDataBuf[9] << 8) | aucReadDataBuf[8]);
+      output->analogInputVoltage = ((aucReadDataBuf[11] << 8) | aucReadDataBuf[10]);
+      output->powerFactor = (((signed char)aucReadDataBuf[13] << 8) +
+                             (unsigned char)aucReadDataBuf[12]);
     
-    output->currentRMS =  ((uint32_t)(aucReadDataBuf[17]) << 24 |
-                           (uint32_t)(aucReadDataBuf[16]) << 16 |
-                           (uint32_t)(aucReadDataBuf[15] << 8) |
-                           aucReadDataBuf[14]);
-    output->activePower =  ((uint32_t)(aucReadDataBuf[21]) << 24 |
-                            (uint32_t)(aucReadDataBuf[20]) << 16 |
-                            (uint32_t)(aucReadDataBuf[19] << 8) |
-                            aucReadDataBuf[18]);
-    output->reactivePower =  ((uint32_t)(aucReadDataBuf[25]) << 24 |
-                              (uint32_t)(aucReadDataBuf[24]) << 16 |
-                              (uint32_t)(aucReadDataBuf[23] << 8) |
-                              aucReadDataBuf[22]);
-    output->apparentPower =  ((uint32_t)(aucReadDataBuf[29]) << 24 |
-                              (uint32_t)(aucReadDataBuf[28]) << 16 |
-                              (uint32_t)(aucReadDataBuf[27]) << 8 |
-                              aucReadDataBuf[26]);
+      output->currentRMS =  ((uint32_t)(aucReadDataBuf[17]) << 24 |
+                             (uint32_t)(aucReadDataBuf[16]) << 16 |
+                             (uint32_t)(aucReadDataBuf[15]) << 8 |
+                             aucReadDataBuf[14]);
+      output->activePower =  ((uint32_t)(aucReadDataBuf[21]) << 24 |
+                              (uint32_t)(aucReadDataBuf[20]) << 16 |
+                              (uint32_t)(aucReadDataBuf[19]) << 8 |
+                              aucReadDataBuf[18]);
+      output->reactivePower =  ((uint32_t)(aucReadDataBuf[25]) << 24 |
+                                (uint32_t)(aucReadDataBuf[24]) << 16 |
+                                (uint32_t)(aucReadDataBuf[23]) << 8 |
+                                aucReadDataBuf[22]);
+      output->apparentPower =  ((uint32_t)(aucReadDataBuf[29]) << 24 |
+                                (uint32_t)(aucReadDataBuf[28]) << 16 |
+                                (uint32_t)(aucReadDataBuf[27]) << 8 |
+                                aucReadDataBuf[26]);
+    }
+  
+    delay(100);
+
   }
-  
-  delay(100);
 
-  retval = registerReadNBytes(0x00, 0x1e, 16, aucReadDataBuf, 19);
+  if (accumOutput) {
 
-  if (retval != SUCCESS) {
-    return retval;
-  } else {
+    retval = registerReadNBytes(0x00, 0x1e, 16, aucReadDataBuf, 19);
+
+    if (retval != SUCCESS) {
+      return retval;
+    } else {
     
-    if (accumOutput) {
       if (_energy_accum_correction_factor == -1)  {
         accumOutput->activeEnergyImport =  (((uint64_t)aucReadDataBuf[9]) << 56 |
                                             ((uint64_t)aucReadDataBuf[8]) << 48 |
@@ -160,18 +165,18 @@ int UpbeatLabs_MCP39F521::read(UpbeatLabs_MCP39F521_Data *output,
                                             ((uint64_t)aucReadDataBuf[6]) << 32 |
                                             (uint64_t)(aucReadDataBuf[5]) << 24 |
                                             (uint64_t)(aucReadDataBuf[4]) << 16 |
-                                            (uint64_t)(aucReadDataBuf[3] << 8) |
+                                            (uint64_t)(aucReadDataBuf[3]) << 8 |
                                             (uint64_t)aucReadDataBuf[2]) /
-                                           2;
+          2;
         accumOutput->activeEnergyExport =  (((uint64_t)aucReadDataBuf[17]) << 56 |
                                             ((uint64_t)aucReadDataBuf[16]) << 48 |
                                             ((uint64_t)aucReadDataBuf[15]) << 40 |
                                             ((uint64_t)aucReadDataBuf[14]) << 32 |
                                             (uint64_t)(aucReadDataBuf[13]) << 24 |
                                             (uint64_t)(aucReadDataBuf[12]) << 16 |
-                                            (uint64_t)(aucReadDataBuf[11] << 8) |
+                                            (uint64_t)(aucReadDataBuf[11]) << 8 |
                                             (uint64_t)aucReadDataBuf[10]) /
-                                          2;
+          2;
       } else {
         accumOutput->activeEnergyImport =  (((uint64_t)aucReadDataBuf[9]) << 56 |
                                             ((uint64_t)aucReadDataBuf[8]) << 48 |
@@ -179,32 +184,30 @@ int UpbeatLabs_MCP39F521::read(UpbeatLabs_MCP39F521_Data *output,
                                             ((uint64_t)aucReadDataBuf[6]) << 32 |
                                             (uint64_t)(aucReadDataBuf[5]) << 24 |
                                             (uint64_t)(aucReadDataBuf[4]) << 16 |
-                                            (uint64_t)(aucReadDataBuf[3] << 8) |
+                                            (uint64_t)(aucReadDataBuf[3]) << 8 |
                                             (uint64_t)aucReadDataBuf[2]) *
-                                           ( 1 << _energy_accum_correction_factor);
+          ( 1 << _energy_accum_correction_factor);
         accumOutput->activeEnergyExport =  (((uint64_t)aucReadDataBuf[17]) << 56 |
                                             ((uint64_t)aucReadDataBuf[16]) << 48 |
                                             ((uint64_t)aucReadDataBuf[15]) << 40 |
                                             ((uint64_t)aucReadDataBuf[14]) << 32 |
                                             (uint64_t)(aucReadDataBuf[13]) << 24 |
                                             (uint64_t)(aucReadDataBuf[12]) << 16 |
-                                            (uint64_t)(aucReadDataBuf[11] << 8) |
+                                            (uint64_t)(aucReadDataBuf[11]) << 8 |
                                             (uint64_t)aucReadDataBuf[10]) *
-                                           (1 << _energy_accum_correction_factor);
+          (1 << _energy_accum_correction_factor);
       }
 
     }
-  }
   
-  delay(100);
+    delay(100);
 
-  retval = registerReadNBytes(0x00, 0x2e, 16, aucReadDataBuf, 19);
+    retval = registerReadNBytes(0x00, 0x2e, 16, aucReadDataBuf, 19);
 
-  if (retval != SUCCESS) {
-    return retval;
-  } else {
+    if (retval != SUCCESS) {
+      return retval;
+    } else {
 
-    if (accumOutput) {
       if (_energy_accum_correction_factor == -1)  {
         accumOutput->reactiveEnergyImport =  (((uint64_t)aucReadDataBuf[9]) << 56 |
                                               ((uint64_t)aucReadDataBuf[8]) << 48 |
@@ -212,18 +215,18 @@ int UpbeatLabs_MCP39F521::read(UpbeatLabs_MCP39F521_Data *output,
                                               ((uint64_t)aucReadDataBuf[6]) << 32 |
                                               (uint64_t)(aucReadDataBuf[5]) << 24 |
                                               (uint64_t)(aucReadDataBuf[4]) << 16 |
-                                              (uint64_t)(aucReadDataBuf[3] << 8) |
+                                              (uint64_t)(aucReadDataBuf[3]) << 8 |
                                               (uint64_t)aucReadDataBuf[2]) /
-                                             2;
+          2;
         accumOutput->reactiveEnergyExport =  (((uint64_t)aucReadDataBuf[17]) << 56 |
                                               ((uint64_t)aucReadDataBuf[16]) << 48 |
                                               ((uint64_t)aucReadDataBuf[15]) << 40 |
                                               ((uint64_t)aucReadDataBuf[14]) << 32 |
                                               (uint64_t)(aucReadDataBuf[13]) << 24 |
                                               (uint64_t)(aucReadDataBuf[12]) << 16 |
-                                              (uint64_t)(aucReadDataBuf[11] << 8) |
+                                              (uint64_t)(aucReadDataBuf[11]) << 8 |
                                               (uint64_t)aucReadDataBuf[10]) /
-                                             2;
+          2;
 
       } else {
         accumOutput->reactiveEnergyImport =  (((uint64_t)aucReadDataBuf[9]) << 56 |
@@ -232,22 +235,22 @@ int UpbeatLabs_MCP39F521::read(UpbeatLabs_MCP39F521_Data *output,
                                               ((uint64_t)aucReadDataBuf[6]) << 32 |
                                               (uint64_t)(aucReadDataBuf[5]) << 24 |
                                               (uint64_t)(aucReadDataBuf[4]) << 16 |
-                                              (uint64_t)(aucReadDataBuf[3] << 8) |
+                                              (uint64_t)(aucReadDataBuf[3]) << 8 |
                                               (uint64_t)aucReadDataBuf[2]) *
-                                            (1 << _energy_accum_correction_factor);
+          (1 << _energy_accum_correction_factor);
         accumOutput->reactiveEnergyExport =  (((uint64_t)aucReadDataBuf[17]) << 56 |
                                               ((uint64_t)aucReadDataBuf[16]) << 48 |
                                               ((uint64_t)aucReadDataBuf[15]) << 40 |
                                               ((uint64_t)aucReadDataBuf[14]) << 32 |
                                               (uint64_t)(aucReadDataBuf[13]) << 24 |
                                               (uint64_t)(aucReadDataBuf[12]) << 16 |
-                                              (uint64_t)(aucReadDataBuf[11] << 8) |
+                                              (uint64_t)(aucReadDataBuf[11]) << 8 |
                                               (uint64_t)aucReadDataBuf[10]) *
-                                            (1 << _energy_accum_correction_factor);
+          (1 << _energy_accum_correction_factor);
       }
-    }
     
-  }  
+    }
+  }
     
   return SUCCESS;
 }
@@ -1299,7 +1302,7 @@ int UpbeatLabs_MCP39F521::registerReadNBytes(int addressHigh, int addressLow,
     
   } else {
     // Unexpected. Handle error  
-    return ERROR_UNEXPECTED_RESPONSE;
+    return ERROR_UNEXPECTED_RESPONSE; 
   }
 
   return SUCCESS;
