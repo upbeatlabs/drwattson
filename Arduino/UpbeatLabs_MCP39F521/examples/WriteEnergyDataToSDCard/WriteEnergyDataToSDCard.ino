@@ -19,7 +19,10 @@
   active, reactive and apparent power values change.  
 
   All these values are written to the SD card in CSV format, which can then
-  be used with a program like Excel to view/plot the data. 
+  be used with a program like Excel to view/plot the data. The file name is
+  of the form DATAnn.CSV. At the time of setup, a new file name is chosen that
+  does not already exist, so the files will be DATA00.CSV, DATA01.CSV, DATA02.CSV
+  and so on. The logging rotates to new files until DATA99.CSV. 
 
   The communication happens over I2C. 2 pins are required to interface. 
   There are 4 selectable I2C address possibilities per board (selectable
