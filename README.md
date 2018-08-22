@@ -23,6 +23,7 @@ If you are a more advanced user, you have a wide range of functionality availabl
 * **Arduino/** - contains library and examples for use with Arduino
 * **LICENSE** - the license file (BSD 3-clause license)
 * **README.md** - this file!
+* **DrWattsonUserManual.pdf** - the User Manual for Dr. Wattson
 * (Raspberry Pi library under development)
 
 ## License
