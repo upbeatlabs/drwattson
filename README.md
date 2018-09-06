@@ -2,9 +2,9 @@
 
 Libraries for use with *Dr. Wattson Energy Monitoring Board*
 
-Dr. Wattson is an Energy Monitoring Breakout Board for Arduino and other Maker-Friendly Microcontrollers. Easily integrate quality AC energy measurements into your next project!
+Dr. Wattson is an Energy Monitoring Breakout Board for Arduino, Raspberry Pi and other Maker-Friendly Microcontrollers. Easily integrate quality AC energy measurements into your next project!
 
-Based on the **MCP39F521**, a single-phase power monitoring chip from **Microchip**, the board is designed to be tolerant of a wide range of voltages, which means that it can also be used with the Raspberry Pi or any other 3.3v MCUs just as easily. (For all you Raspberry Pi fans out there, a Raspberry Pi library using python smbus is under development too! ;-) So email us and let us know!)
+Based on the **MCP39F521**, a single-phase power monitoring chip from **Microchip**, the board is designed to be tolerant of a wide range of voltages, which means that it can also be used with the Raspberry Pi or any other 3.3v MCUs just as easily.
 
 The unit comes pre-calibrated (enabling measurements from 1mA up to 4A) to enable you to start taking quality measurements on the get-go with just a couple of simple commands. You don't need any additional CT or other components. 
 
@@ -24,7 +24,7 @@ If you are a more advanced user, you have a wide range of functionality availabl
 * **LICENSE** - the license file (BSD 3-clause license)
 * **README.md** - this file!
 * **DrWattsonUserManual.pdf** - the User Manual for Dr. Wattson
-* (Raspberry Pi library under development)
+* **Python/** - contains library and examples for use with Raspberry Pi library (or BeagleBone Black)
 
 ## License
 

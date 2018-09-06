@@ -13,7 +13,15 @@ Arduino Library for use with Dr. Wattson Energy Monitoring Board
 * **UpbeatLabs_MCP39F521.cpp** - implementation file for library
 * **library.properties** - General library properties for Arduino package manager
 
+## Installing
+
+Copy the entire UpbeatLabs_MCP39F521 folder under drwattson/Arduino to your Arduino libraries location.
+
+See [Installing Additional Arduino Libraries](https://www.arduino.cc/en/Guide/Libraries#toc5) for more information if needed (under **Manual installation**)
+
 ## Examples
+
+Once the library is installed, you can navigate to the example sketches from your Arduino IDE and open them up to compile and run. 
 
 * **GetEnergyData** - "Hello World" example to get metering data from your Dr. Wattson, including Voltage RMS, Current RMS, Power Factor, Active Power, Reactive Power with a simple call
 * **EEPROMExample**	- 	Write to and read from 512 bytes of EEPROM memory available on MCP39F521  (organized as 32 pages of 16 bytes each)	
