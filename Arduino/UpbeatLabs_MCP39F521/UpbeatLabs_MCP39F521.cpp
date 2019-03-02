@@ -1356,7 +1356,7 @@ int UpbeatLabs_MCP39F521::registerWriteNBytes(int addressHigh, int addressLow,
   
 }
 
-// Some commands are issued and just return an ACK (or NACK)
+// Some commands are issued and just return an ACK (or NAK)
 // This method factors out those types of commands
 // and takes in as argument the specified command to issue.
  
@@ -1370,7 +1370,7 @@ int UpbeatLabs_MCP39F521::issueAckNackCommand(int command)
   aucWriteDataBuf[0] = 0xa5; // Header
   aucWriteDataBuf[1] = 0x04; // Num bytes
   aucWriteDataBuf[2] = command; // Command
-  aucWriteDataBuf[3] = 0xa5 + 0x04 + command; // checksum
+  aucWriteDataBuf[3] = (0xa5 + 0x04 + command) % 256; // checksum
 
   Wire.beginTransmission(i2c_addr);
   for(i=0; i< 4; i++) {
@@ -1436,9 +1436,9 @@ int UpbeatLabs_MCP39F521::checkHeaderAndChecksum( int numBytesToRead,
 int UpbeatLabs_MCP39F521::checkHeader( int header)
 {
   int error = SUCCESS;
-  if (header != 0x06) {
+  if (header != RESPONSE_ACK) {
     error = ERROR_INCORRECT_HEADER;
-    if (header == 0x51) {
+    if (header == RESPONSE_CSFAIL) {
       error = ERROR_CHECKSUM_FAIL;
     }
   }
