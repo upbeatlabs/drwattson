@@ -172,7 +172,7 @@ class UpbeatLabs_MCP39F521(object):
 
     class __Response_code(Enum):
         RESPONSE_ACK = 0x06
-        RESPONSE_NACK = 0x07
+        RESPONSE_NAK = 0x15
         RESPONSE_CSFAIL = 0x51
 
     class __Command_code(Enum):
@@ -1025,7 +1025,7 @@ class UpbeatLabs_MCP39F521(object):
         return self.__checkHeader(header) 
     
   
-    ## Some commands are issued and just return an ACK (or NACK)
+    ## Some commands are issued and just return an ACK (or NAK)
     ## This method factors out those types of commands
     ## and takes in as argument the specified command to issue.
     
@@ -1080,10 +1080,10 @@ class UpbeatLabs_MCP39F521(object):
     def __checkHeader(self, header):
         """Implementation of checkHeader """
         error = self.Error_code.SUCCESS.value;
-        if (header != 0x06):
+        if (header != self.__Response_code.RESPONSE_ACK.value):
             error = self.Error_code.ERROR_INCORRECT_HEADER.value
             
-        if (header == 0x51):
+        if (header == self.__Response_code.RESPONSE_CSFAIL.value):
             error = self.Error_code.ERROR_CHECKSUM_FAIL.value
             
         return error

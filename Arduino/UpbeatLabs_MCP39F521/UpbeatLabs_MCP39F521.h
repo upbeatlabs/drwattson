@@ -272,7 +272,7 @@ public:
 private:
   enum response_code {
     RESPONSE_ACK = 0x06,
-    RESPONSE_NACK = 0x07,
+    RESPONSE_NAK = 0x15, 
     RESPONSE_CSFAIL = 0x51
   };
 
