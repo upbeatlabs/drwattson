@@ -194,6 +194,12 @@ public:
     SYSTEM_SIGN_PR = 5,
     SYSTEM_EVENT = 10,
   };
+
+  enum calibration_config {
+    CALIBRATION_CONFIG_4A = 0,
+    CALIBRATION_CONFIG_10A = 1, /* 30 ohm burden resistor x2 */
+    CALIBRATION_CONFIG_15A = 2 /* 20 ohm burden resistor x2 */
+  };
   
   UpbeatLabs_MCP39F521();
   
@@ -264,7 +270,7 @@ public:
   int saveToFlash();
   int factoryReset(); // This will revert the MCP39F521 to its default settings and
                       // remove any calibration data. Use with extreme caution!!!!
-  int UpbeatLabs_MCP39F521::resetCalibration();
+  int UpbeatLabs_MCP39F521::resetCalibration(calibration_config cc = CALIBRATION_CONFIG_4A );
 
   // END --- WARNING!!! WARNING!!! WARNING!!!
 

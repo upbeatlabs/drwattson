@@ -13,7 +13,7 @@ classifiers = [
     ]
 
 setup(name='UpbeatLabs_MCP39F521',
-      version='1.0',
+      version='1.1',
       description='Python Distribution Utilities',
       long_description='',
       author='Sridhar Rajagopal',

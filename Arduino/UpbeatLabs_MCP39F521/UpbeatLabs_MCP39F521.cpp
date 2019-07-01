@@ -1190,48 +1190,70 @@ int UpbeatLabs_MCP39F521::factoryReset()
   return SUCCESS;
 }
 
+
+typedef struct UpbeatLabs_MCP39F521_CalibrationConfig {
+  uint32_t systemConfig;
+  int accumInt;
+  UpbeatLabs_MCP39F521_DesignConfigData designConfigData;
+  int gainCurrentRMS;
+  int gainVoltageRMS;
+  int gainActivePower;
+  int gainReactivePower;
+  int16_t phaseCompensation;
+} UpbeatLabs_MCP39F521_CalibrationConfig; 
+
+
+UpbeatLabs_MCP39F521_CalibrationConfig calibConfig[] = {
+  {268435456, 5, {18, 15, 22, 0, 8456, 1203, 9920, 1101, 60000}, 40386, 57724, 50987, 45458, 208 },
+  {268435456, 5, {18, 13, 20, 27, 20000, 1200, 24000, 20785, 60000}, 33247, 57917, 42529, 38181, 0 },
+  {268435456, 5, {18, 13, 20, 27, 17100, 1218, 20800, 5470, 60000}, 50090, 57394, 63413, 57227, 58 },  
+};
+
 // This method will reset the calibration values to Dr. Wattson 
 
-int UpbeatLabs_MCP39F521::resetCalibration()
+int UpbeatLabs_MCP39F521::resetCalibration(calibration_config cc)
 {
   int retVal = 0;
 
-  retVal = setSystemConfigurationRegister(268435456); // Channel 1 Gain 4, Channel 0 Gain 1
+  retVal = setSystemConfigurationRegister(calibConfig[cc].systemConfig); // Channel 1 Gain 4, Channel 0 Gain 1
   if (retVal != SUCCESS) {
     return retVal;
   }
 
-  retVal = setAccumulationIntervalRegister(5); // Accumulation interval 5
+  retVal = setAccumulationIntervalRegister(calibConfig[cc].accumInt); // Accumulation interval 5
   if (retVal != SUCCESS) {
     return retVal;
   }
 
   // We need to apply correction factor where accumulation interval is not 2;
-  _energy_accum_correction_factor = (5 - 2);
-
+  if (calibConfig[cc].accumInt > 2) { 
+    _energy_accum_correction_factor = (calibConfig[cc].accumInt - 2);
+  }
+ 
   UpbeatLabs_MCP39F521_DesignConfigData data;
   
-  data.calibrationVoltage = 1203;
-  data.calibrationCurrent = 8456;
-  data.calibrationPowerActive = 9920;
-  data.calibrationPowerReactive = 1101;
-  data.lineFrequencyRef = 60000;
-  data.rangeVoltage = 18;
-  data.rangeCurrent = 15;
-  data.rangePower = 22;
-  data.rangeUnimplemented = 0;
+  data.calibrationVoltage = calibConfig[cc].designConfigData.calibrationVoltage;
+  data.calibrationCurrent = calibConfig[cc].designConfigData.calibrationCurrent;
+  data.calibrationPowerActive = calibConfig[cc].designConfigData.calibrationPowerActive;
+  data.calibrationPowerReactive = calibConfig[cc].designConfigData.calibrationPowerReactive;
+  data.lineFrequencyRef = calibConfig[cc].designConfigData.lineFrequencyRef;
+  data.rangeVoltage = calibConfig[cc].designConfigData.rangeVoltage;
+  data.rangeCurrent = calibConfig[cc].designConfigData.rangeCurrent;
+  data.rangePower = calibConfig[cc].designConfigData.rangePower;
+  data.rangeUnimplemented = calibConfig[cc].designConfigData.rangeUnimplemented;
 
   retVal = writeDesignConfigRegisters(&data);
   if (retVal != SUCCESS) {
     return retVal;
   }
 
-  retVal = writeGains(40386, 57724, 50987, 45458);
+  retVal = writeGains(calibConfig[cc].gainCurrentRMS, calibConfig[cc].gainVoltageRMS,
+                      calibConfig[cc].gainActivePower, calibConfig[cc].gainReactivePower);
   if (retVal != SUCCESS) {
     return retVal;
   }
 
-  retVal = writePhaseCompensation(208);
+  retVal = writePhaseCompensation(calibConfig[cc].phaseCompensation);
   if (retVal != SUCCESS) {
     return retVal;
   }

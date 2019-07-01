@@ -126,9 +126,30 @@ class UpbeatLabs_MCP39F521_EventFlagLimits(object):
         self.voltageSagLimit = voltageSagLimit
         self.voltageSurgeLimit = voltageSurgeLimit
         self.overCurrentLimit = overCurrentLimit
-        self.overPowerLimit = overPowerLimit   
+        self.overPowerLimit = overPowerLimit
+        
 
-  
+class UpbeatLabs_MCP39F521_CalibrationConfig(object):
+    def __init__(self, systemConfig = None, accumInt = None, designConfigData = None,
+                     gainCurrentRMS = None, gainVoltageRMS = None, gainActivePower = None,
+                     gainReactivePower = None, phaseCompensation = None):
+        self.systemConfig = systemConfig
+        self.accumInt = accumInt
+        self.designConfigData = designConfigData
+        self.gainCurrentRMS = gainCurrentRMS
+        self.gainVoltageRMS = gainVoltageRMS
+        self.gainActivePower = gainActivePower
+        self.gainReactivePower = gainReactivePower
+        self.phaseCompensation = phaseCompensation
+
+
+calibConfig = [
+    UpbeatLabs_MCP39F521_CalibrationConfig(268435456, 5, UpbeatLabs_MCP39F521_DesignConfigData(18, 15, 22, 0, 8456, 1203, 9920, 1101, 60000), 40386, 57724, 50987, 45458, 208),
+    UpbeatLabs_MCP39F521_CalibrationConfig(268435456, 5, UpbeatLabs_MCP39F521_DesignConfigData(18, 13, 20, 27, 20000, 1200, 24000, 20785, 60000), 33247, 57917, 42529, 38181, 0),
+    UpbeatLabs_MCP39F521_CalibrationConfig(268435456, 5, UpbeatLabs_MCP39F521_DesignConfigData(18, 13, 20, 27, 17100, 1218, 20800, 5470, 60000), 50090, 57394, 63413, 57227, 58)
+    ]
+    
+        
 class UpbeatLabs_MCP39F521(object):
     """Class for communicating with an MCP39F521 device like Dr. Wattson using the 
     python smbus library."""
@@ -169,6 +190,11 @@ class UpbeatLabs_MCP39F521(object):
         SYSTEM_SIGN_PA = 4
         SYSTEM_SIGN_PR = 5
         SYSTEM_EVENT = 10
+        
+    class calibration_config(Enum):
+        CALIBRATION_CONFIG_4A = 0
+        CALIBRATION_CONFIG_10A = 1 # 30 ohm burden resistor x2 
+        CALIBRATION_CONFIG_15A = 2  # 20 ohm burden resistor x2
 
     class __Response_code(Enum):
         RESPONSE_ACK = 0x06
@@ -621,7 +647,7 @@ class UpbeatLabs_MCP39F521(object):
         byteArray[1] = (value >> 8) & 0xFF;
         byteArray[2] = (value >> 16) & 0xFF;
         byteArray[3] = (value >> 24) & 0xFF;
-        print byteArray
+        # print byteArray
         
         retVal = self.__registerWriteNBytes(0x00, 0x7a, 4, byteArray);
         if (retVal != self.Error_code.SUCCESS.value):
@@ -903,41 +929,32 @@ class UpbeatLabs_MCP39F521(object):
   
     ## This method will reset the calibration values to Dr. Wattson
     
-    def resetCalibration(self):
+    def resetCalibration(self, cc = calibration_config.CALIBRATION_CONFIG_4A.value):
+        global calibConfig
         retVal = self.Error_code.SUCCESS.value
 
-        retVal = self.setSystemConfigurationRegister(268435456) # Channel 1 Gain 4, Channel 0 Gain 1
+        retVal = self.setSystemConfigurationRegister(calibConfig[cc].systemConfig) # Channel 1 Gain 4, Channel 0 Gain 1
         if (retVal != self.Error_code.SUCCESS.value):
             return retVal
 
-        retVal = self.setAccumulationIntervalRegister(5) # Accumulation interval 5
+        retVal = self.setAccumulationIntervalRegister(calibConfig[cc].accumInt) # Accumulation interval 5
         if (retVal != self.Error_code.SUCCESS.value):
             return retVal
 
         ## We need to apply correction factor where accumulation interval is not 2;
-        self._energy_accum_correction_factor = (5 - 2);
+        if (calibConfig[cc].accumInt > 2):
+              self._energy_accum_correction_factor = (calibConfig[cc].accumInt - 2)
 
-        data = UpbeatLabs_MCP39F521_DesignConfigData();
-  
-        data.calibrationVoltage = 1203;
-        data.calibrationCurrent = 8456;
-        data.calibrationPowerActive = 9920;
-        data.calibrationPowerReactive = 1101;
-        data.lineFrequencyRef = 60000;
-        data.rangeVoltage = 18;
-        data.rangeCurrent = 15;
-        data.rangePower = 22;
-        data.rangeUnimplemented = 0;
         
-        retVal = self.writeDesignConfigRegisters(data);
+        retVal = self.writeDesignConfigRegisters(calibConfig[cc].designConfigData);
         if (retVal != self.Error_code.SUCCESS.value):
             return retVal
         
-        retVal = self.writeGains(40386, 57724, 50987, 45458);
+        retVal = self.writeGains(calibConfig[cc].gainCurrentRMS, calibConfig[cc].gainVoltageRMS, calibConfig[cc].gainActivePower, calibConfig[cc].gainReactivePower);
         if (retVal != self.Error_code.SUCCESS.value):
             return retVal;
         
-        retVal = self.writePhaseCompensation(208)
+        retVal = self.writePhaseCompensation(calibConfig[cc].phaseCompensation)
         if (retVal != self.Error_code.SUCCESS.value):
             return retVal;
 
