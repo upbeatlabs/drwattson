@@ -25,9 +25,9 @@
 
 #   There are 2 output pins - ZCD and EVENT that generate external
 #   interrupts. In this example, ZCD is not is connected to 
-#   GPIO BMC pin 23 (physical pin 15). When ZCD pin is turned on/off
+#   GPIO BMC pin 23 (physical pin 16). When ZCD pin is turned on/off
 #   an interrupt is generated and invokes the zcd_handler, which
-#   toggles the state of the LED (on physical pin 12, BCM pin 18)
+#   toggles the state of the LED (on physical pin 22, BCM pin 25)
 #   at the rate determined by the SLOW_DOWN_FACTOR. The EVENT pin is
 #   not used in this example.
  
@@ -36,6 +36,7 @@
 #  *
 
 from __future__ import print_function
+import sys
 import signal
 import time
 import subprocess as sp
@@ -45,7 +46,7 @@ import UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521 as UpbeatLabs_MCP39F521
 
 wattson = UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521()
 
-LED_PIN = 18
+LED_PIN = 25
 ZCD_PIN = 23
 EVENT_PIN = 24
 
@@ -79,6 +80,10 @@ def initialize():
 
     GPIO.add_event_detect(ZCD_PIN, GPIO.BOTH, zcd_handler)
 
+def cleanup():
+    GPIO.remove_event_detect(ZCD_PIN)
+    GPIO.output(LED_PIN, 0)
+    GPIO.cleanup()
 
 # Attach two "static" variables to the function to track state
 # across calls
@@ -96,8 +101,10 @@ def zcd_handler(pin):
 
 # gracefully exit without a big exception message if possible
 def ctrl_c_handler(signal, frame):
-    print('Goodbye!')
+    print("Goodbye!")
+    cleanup()
     exit(0)
+
 
 signal.signal(signal.SIGINT, ctrl_c_handler)
 

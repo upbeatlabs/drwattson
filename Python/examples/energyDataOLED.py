@@ -40,9 +40,9 @@ from PIL import ImageDraw
 from PIL import ImageFont
 
 # Raspberry Pi pin configuration:
-RST = 17
+RST = 12
 # Note the following are only used with SPI:
-DC = 27
+DC = 18
 SPI_PORT = 0
 SPI_DEVICE = 0
 

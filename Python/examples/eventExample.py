@@ -39,7 +39,7 @@
 #   interrupts. In this example, ZCD is not used. EVENT is connected to
 #   GPIO BMC pin 24 (physical pin 16). When EVENT pin is turned on/off
 #   an interrupt is generated and invokes the event_handler, which
-#   changes the state of the LED (on physical pin 12, BCM pin 18) to match the
+#   changes the state of the LED (on physical pin 7, BCM pin 4) to match the
 #   event state
  
 #   Written by Sridhar Rajagopal for Upbeat Labs LLC.
@@ -56,7 +56,7 @@ import UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521 as UpbeatLabs_MCP39F521
 
 wattson = UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521()
 
-LED_PIN = 18
+LED_PIN = 4
 ZCD_PIN = 23
 EVENT_PIN = 24
 
@@ -87,6 +87,11 @@ def initialize():
     GPIO.setup(EVENT_PIN, GPIO.IN)
 
     GPIO.add_event_detect(EVENT_PIN, GPIO.BOTH, event_handler)
+
+def cleanup():
+    GPIO.remove_event_detect(EVENT_PIN)
+    GPIO.output(LED_PIN, 0)
+    GPIO.cleanup()
 
 def event_handler(pin):
     state = GPIO.input(pin)
@@ -167,6 +172,7 @@ def checkSystemStatus(systemStatus):
 # gracefully exit without a big exception message if possible
 def ctrl_c_handler(signal, frame):
     print('Goodbye!')
+    cleanup()
     exit(0)
 
 signal.signal(signal.SIGINT, ctrl_c_handler)
