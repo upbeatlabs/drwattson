@@ -30,7 +30,7 @@ Refer to Dr. Wattson User Manual to set up Dr. Wattson
 
 ```
 sudo python -m pip install --upgrade setuptools wheel
-sudo pip install UpbeatLabs_MCP39F521
+sudo pip install UpbeatLabs_MCP39F521 --upgrade
 ```
 Or alternatively:
 
