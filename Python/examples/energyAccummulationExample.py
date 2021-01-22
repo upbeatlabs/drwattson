@@ -56,6 +56,7 @@ def main():
         print "ReactiveEnergyImport = " + str(energyAccumData.reactiveEnergyImport)
         print "ActiveEnergyExport = " + str(energyAccumData.activeEnergyExport)
         print "ReactiveEnergyExport = " + str(energyAccumData.reactiveEnergyExport)
+        time.sleep(1)
  
 
 
