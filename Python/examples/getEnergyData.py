@@ -30,6 +30,7 @@
 
 import UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521 as UpbeatLabs_MCP39F521
 import subprocess as sp
+import time
 
 wattson = UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521()
 
@@ -43,4 +44,5 @@ while(1):
     print "ActivePower = " + str(result.activePower)
     print "ReactivePower = " + str(result.reactivePower)
     print "ApparentPower = " + str(result.apparentPower)
+    time.sleep(1)
     
