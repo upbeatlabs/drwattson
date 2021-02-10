@@ -270,7 +270,7 @@ public:
   int saveToFlash();
   int factoryReset(); // This will revert the MCP39F521 to its default settings and
                       // remove any calibration data. Use with extreme caution!!!!
-  int UpbeatLabs_MCP39F521::resetCalibration(calibration_config cc = CALIBRATION_CONFIG_4A );
+  int resetCalibration(calibration_config cc = CALIBRATION_CONFIG_4A );
 
   // END --- WARNING!!! WARNING!!! WARNING!!!
 
