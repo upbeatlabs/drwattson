@@ -1,6 +1,6 @@
 /*************************************************** 
   This is a example sketch for Upbeat Labs Dr. Wattson Energy Monitoring Breakout
-  --> https://www.tindie.com/products/UpbeatLabs/dr-wattson-energy-monitoring-board-2/
+  --> https://www.protostax.com/products/dr-wattson-energy-monitoring-board-v2/
 
   This example demonstrates the event capabilities of the MCP39F521 used in Dr. Wattson.
   It can generate signals on the EVENT pin which can then be attached to an 

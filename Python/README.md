@@ -2,7 +2,7 @@
 
 Python library to use with *Dr. Wattson Energy Monitoring Board* or other MCP39F521 based boards with a Raspberry Pi (or Beaglebone Black).
 
-Specifically designed for use with Dr. Wattson Energy Monitoring Board --> [https://www.tindie.com/products/10722/](https://www.tindie.com/products/10722/)
+Specifically designed for use with Dr. Wattson Energy Monitoring Board --> [https://www.protostax.com/products/dr-wattson-energy-monitoring-board-v2/](https://www.protostax.com/products/dr-wattson-energy-monitoring-board-v2/)
 
 Dr. Wattson is an Energy Monitoring Breakout Board for Arduino and other Maker-Friendly Microcontrollers. Easily integrate quality AC energy measurements into your next project!
 
@@ -12,13 +12,9 @@ The unit comes pre-calibrated (enabling measurements from 1mA up to 4A) to enabl
 
 If you are a more advanced user, you have a wide range of functionality available from the rich library, as well as the ability to tweak the hardware to suit your needs and recalibrate using the library.
 
-![Dr. Wattson Energy Monitoring Board](https://cdn.tindiemedia.com/images/resize/kW19eEY1MdSF9HKyd494XWZnL00=/p/full-fit-in/2400x1600/i/89288/products/2017-12-27T05%3A09%3A50.171Z-DSC_9624%20%281%29.jpg)
+![Dr. Wattson Energy Monitoring Board](https://cdn.shopify.com/s/files/1/0082/6248/4004/products/DrWattsonV2_title.jpg?v=1661905914)
 
-![Enclosure for Dr. Wattson Energy Monitoring Board](https://cdn.tindiemedia.com/images/resize/v8u6mYF5s2XNxtbvp0Eh7k94jZo=/p/full-fit-in/2400x1600/i/89288/products/2018-02-09T01%3A41%3A04.074Z-DSC_1382.jpg)
-
-[https://www.tindie.com/products/10722/](https://www.tindie.com/products/10722/)
-
-[https://www.tindie.com/products/11470/](https://www.tindie.com/products/11470/)
+[Learn more and get it here!](https://www.protostax.com/products/dr-wattson-energy-monitoring-board-v2/)
 
 ## Prerequisites
 

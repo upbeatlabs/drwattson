@@ -2,9 +2,9 @@
 
 Arduino Library for use with Dr. Wattson Energy Monitoring Board
 
-![Dr. Wattson Energy Monitoring Board](https://cdn.tindiemedia.com/images/resize/kW19eEY1MdSF9HKyd494XWZnL00=/p/full-fit-in/2400x1600/i/89288/products/2017-12-27T05%3A09%3A50.171Z-DSC_9624%20%281%29.jpg)
+![Dr. Wattson Energy Monitoring Board](https://cdn.shopify.com/s/files/1/0082/6248/4004/products/DrWattsonV2_title.jpg?v=1661905914)
 
-[https://www.tindie.com/products/10722/](https://www.tindie.com/products/10722/)
+[Learn more and get it here!](https://www.protostax.com/products/dr-wattson-energy-monitoring-board-v2/)
 
 ## Contents
 

@@ -4,7 +4,7 @@
 # UpbeatLabs_MCP39F521.py
 #
 # This is a library for the Upbeat Labs Dr. Wattson Energy Monitoring Board
-# --> https:#www.tindie.com/products/UpbeatLabs/dr-wattson-energy-monitoring-board-2/
+# --> https://www.protostax.com/products/dr-wattson-energy-monitoring-board-v2/
 #
 # Written by Sridhar Rajagopal for Upbeat Labs LLC.
 #

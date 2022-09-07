@@ -1,6 +1,6 @@
 /*******************************************************************************
   This is a example sketch for Upbeat Labs Dr. Wattson Energy Monitoring Breakout
-  --> https://www.tindie.com/products/UpbeatLabs/dr-wattson-energy-monitoring-board-2/
+  --> https://www.protostax.com/products/dr-wattson-energy-monitoring-board-v2/
 
   This example was used to present at Maker Faire Bay Area 2018 at
   "Easy Energy Monitoring with Arduino* and Dr. Wattson"
