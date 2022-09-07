@@ -8,7 +8,7 @@ Dr. Wattson is an Energy Monitoring Breakout Board for Arduino and other Maker-F
 
 Based on the **MCP39F521**, a single-phase power monitoring chip from **Microchip**, the board is designed to be tolerant of a wide range of voltages, which means that it can also be used with the Raspberry Pi or any other 3.3v MCUs just as easily.
 
-The unit comes pre-calibrated (enabling measurements from 1mA up to 4A) to enable you to start taking quality measurements on the get-go with just a couple of simple commands. You don't need any additional CT or other components. 
+The unit comes pre-calibrated, enabling you to start taking quality measurements from 90-240v, at either 50 or 60 Hz, and for currents up to 15A. You don't need any additional CT/VT or other components.  With the libraries here, you can start taking measurements on the get-go with just a couple of simple commands.
 
 If you are a more advanced user, you have a wide range of functionality available from the rich library, as well as the ability to tweak the hardware to suit your needs and recalibrate using the library.
 
