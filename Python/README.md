@@ -61,7 +61,9 @@ Optionally,
 * connect LED Cathode to RPI (physical) pin 6 (GND)
 
 ### Test I2C connection
-Use i2cdetect -y 1 to test the connection. Dr. Wattson uses (by default) an I2C address of 0x74.
+You'll need to configure the solder jumpers on the Dr. Wattson board to set the I2C address you'd like to use. See Dr. Wattson User Manual for more details.
+
+Use i2cdetect -y 1 to test the connection.
 
 [Note: you can configure the addressing using two solder jumpers on the board, for a total of 4 possible combinations (that correspond to addresses of 0x74, 0x75, 0x76 or 0x77). This means that you can connect up to 4 Dr. Wattson boards using a single MCU]
 
