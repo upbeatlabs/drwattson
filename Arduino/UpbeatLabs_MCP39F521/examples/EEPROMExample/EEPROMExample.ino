@@ -1,6 +1,6 @@
 /*************************************************** 
   This is a example sketch for Upbeat Labs Dr. Wattson Energy Monitoring Breakout
-  --> https://www.tindie.com/products/UpbeatLabs/dr-wattson-energy-monitoring-board-2/
+  --> https://www.protostax.com/products/dr-wattson-energy-monitoring-board-v2/
 
   This example demonstrates the use of EEPROM memory available on the MCP39F521. 
   There are 32 pages of memory of 16 bytes each (for a total of 512 bytes), that 

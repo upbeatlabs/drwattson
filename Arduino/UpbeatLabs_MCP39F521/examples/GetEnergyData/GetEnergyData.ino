@@ -1,6 +1,6 @@
 /*************************************************** 
   This is a example sketch for Upbeat Labs Dr. Wattson Energy Monitoring Breakout
-  --> https://www.tindie.com/products/UpbeatLabs/dr-wattson-energy-monitoring-board-2/
+  --> https://www.protostax.com/products/dr-wattson-energy-monitoring-board-v2/
 
   This example demonstrates getting Energy Data from Dr. Wattson.
 
