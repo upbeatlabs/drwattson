@@ -23,11 +23,41 @@ If you are a more advanced user, you have a wide range of functionality availabl
 * **UpbeatLabs_MCP39F521.cpp** - implementation file for library
 * **library.properties** - General library properties for Arduino package manager
 
+## Prerequisites
+
+Refer to Dr. Wattson User Manual to set up Dr. Wattson
+
+
 ## Installing
 
 Copy the entire UpbeatLabs_MCP39F521 folder under drwattson/Arduino to your Arduino libraries location.
 
 See [Installing Additional Arduino Libraries](https://www.arduino.cc/en/Guide/Libraries#toc5) for more information if needed (under **Manual installation**)
+
+## Usage
+
+### Connect Dr. Wattson
+
+See Dr. Wattson User Manual for more details.
+
+![Arduino & Dr. Wattson Wiring](Arduino_DrWattson_wiring.png)
+
+Here is the wiring, from left to right for an Arduino Uno
+
+* SCL to A5/D19 pin (SCL)
+* SDA to A4/D18 pin (SDA)
+* ZCD pin (optional) - pin 2 (external interrupt)
+* Event pin (optional) - pin 3 (external interrupt)
+* GND to GND pin
+* Vin to 5v (Arduino Uno logic levels are based on 5v)
+* 3.3v to 3.3v (power supply for the Dr. Wattson board)
+* GND to GND pin
+
+###  I2C connection
+You'll need to configure the solder jumpers on the Dr. Wattson board to set the I2C address you'd like to use. See Dr. Wattson User Manual for more details.
+
+[Note: you can configure the addressing using two solder jumpers on the board, for a total of 4 possible combinations (that correspond to addresses of 0x74, 0x75, 0x76 or 0x77). This means that you can connect up to 4 Dr. Wattson boards using a single MCU]
+
 
 ## Examples
 
