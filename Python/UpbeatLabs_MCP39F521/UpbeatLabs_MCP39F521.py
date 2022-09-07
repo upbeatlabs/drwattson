@@ -146,7 +146,8 @@ class UpbeatLabs_MCP39F521_CalibrationConfig(object):
 calibConfig = [
     UpbeatLabs_MCP39F521_CalibrationConfig(268435456, 5, UpbeatLabs_MCP39F521_DesignConfigData(18, 15, 22, 0, 8456, 1203, 9920, 1101, 60000), 40386, 57724, 50987, 45458, 208),
     UpbeatLabs_MCP39F521_CalibrationConfig(268435456, 5, UpbeatLabs_MCP39F521_DesignConfigData(18, 13, 20, 27, 20000, 1200, 24000, 20785, 60000), 33247, 57917, 42529, 38181, 0),
-    UpbeatLabs_MCP39F521_CalibrationConfig(268435456, 5, UpbeatLabs_MCP39F521_DesignConfigData(18, 13, 20, 27, 17100, 1218, 20800, 5470, 60000), 50090, 57394, 63413, 57227, 58)
+    UpbeatLabs_MCP39F521_CalibrationConfig(268435456, 5, UpbeatLabs_MCP39F521_DesignConfigData(18, 13, 20, 27, 17100, 1218, 20800, 5470, 60000), 50090, 57394, 63413, 57227, 58),
+    UpbeatLabs_MCP39F521_CalibrationConfig(268435456, 5, UpbeatLabs_MCP39F521_DesignConfigData(18, 13, 20, 27, 17031, 1207, 20611, 8327, 59488), 49919, 58063, 64169, 57325, 6)
     ]
     
         
@@ -195,6 +196,7 @@ class UpbeatLabs_MCP39F521(object):
         CALIBRATION_CONFIG_4A = 0
         CALIBRATION_CONFIG_10A = 1 # 30 ohm burden resistor x2 
         CALIBRATION_CONFIG_15A = 2  # 20 ohm burden resistor x2
+        CALIBRATION_CONFIG_15A_V2 = 3 # 20 ohm burden resistor x2, v2 board
 
     class __Response_code(Enum):
         RESPONSE_ACK = 0x06
@@ -929,7 +931,7 @@ class UpbeatLabs_MCP39F521(object):
   
     ## This method will reset the calibration values to Dr. Wattson
     
-    def resetCalibration(self, cc = calibration_config.CALIBRATION_CONFIG_4A.value):
+    def resetCalibration(self, cc = calibration_config.CALIBRATION_CONFIG_15A_V2.value):
         global calibConfig
         retVal = self.Error_code.SUCCESS.value
 
