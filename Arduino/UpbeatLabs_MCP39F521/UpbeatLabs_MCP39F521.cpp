@@ -106,9 +106,7 @@ void UpbeatLabs_MCP39F521::begin(uint8_t _addr)
 int UpbeatLabs_MCP39F521::read(UpbeatLabs_MCP39F521_Data *output,
                                UpbeatLabs_MCP39F521_AccumData *accumOutput)
 {
-  uint8_t aucWriteDataBuf[8];
   uint8_t aucReadDataBuf[35];
-  int i;
   int retval = SUCCESS;
 
   if (output) {
@@ -267,7 +265,6 @@ int UpbeatLabs_MCP39F521::readEventConfigRegister(uint32_t *value)
 {
   int retVal = 0;
   uint8_t readArray[7];
-  int readValue;
 
   retVal = registerReadNBytes(0x00, 0x7e, 4, readArray, 7);
   if (retVal != SUCCESS) {
@@ -294,7 +291,7 @@ int UpbeatLabs_MCP39F521::setEventConfigurationRegister(uint32_t value)
   int retVal = 0;
   uint8_t byteArray[4];
   uint8_t readArray[7];
-  int readValue;
+  uint32_t readValue;
   byteArray[0] = value & 0xFF;
   byteArray[1] = (value >> 8) & 0xFF;
   byteArray[2] = (value >> 16) & 0xFF;
@@ -333,9 +330,7 @@ int UpbeatLabs_MCP39F521::setEventConfigurationRegister(uint32_t value)
 
 int UpbeatLabs_MCP39F521::readEventFlagLimitRegisters(UpbeatLabs_MCP39F521_EventFlagLimits *output)
 {
-  uint8_t aucWriteDataBuf[8];
   uint8_t aucReadDataBuf[15];
-  int i;
   int retval = 0;
 
   retval = registerReadNBytes(0x00, 0xA0, 12, aucReadDataBuf, 15);
@@ -538,7 +533,6 @@ int UpbeatLabs_MCP39F521::pageWriteEEPROM(int pageNum, uint8_t *byteArray,
   Wire.requestFrom(i2c_addr, (uint8_t)1);
   aucReadDataBuf[0] = Wire.read();
   
-  int error = SUCCESS;
   uint8_t header = aucReadDataBuf[0];
 
   return checkHeader(header);
@@ -594,7 +588,6 @@ int UpbeatLabs_MCP39F521::isEnergyAccumulationEnabled(bool *enabled)
 {
   int retVal;
   uint8_t readArray[5];
-  int readValue;
 
   retVal = registerReadNBytes(0x00, 0xDC, 2, readArray, 5);
 
@@ -703,9 +696,7 @@ void UpbeatLabs_MCP39F521::convertRawCalibrationData(UpbeatLabs_MCP39F521_Calibr
 
 int UpbeatLabs_MCP39F521::readCalibrationRegisters(UpbeatLabs_MCP39F521_CalibrationData *output)
 {
-  uint8_t aucWriteDataBuf[8];
   uint8_t aucReadDataBuf[35];
-  int i;
   int retval = 0;
 
   retval = registerReadNBytes(0x00, 0x5e, 28, aucReadDataBuf, 35);
@@ -756,8 +747,6 @@ int UpbeatLabs_MCP39F521::writeGains(int gainCurrentRMS, int gainVoltageRMS,
 {
   int retVal;
   uint8_t byteArray[8];
-  UpbeatLabs_MCP39F521_CalibrationData data;
-
 
   byteArray[0] = gainCurrentRMS & 0xFF;
   byteArray[1] = (gainCurrentRMS >> 8) & 0xFF;
@@ -791,7 +780,6 @@ int UpbeatLabs_MCP39F521::readSystemConfigRegister(uint32_t *value)
 {
   int retVal = 0;
   uint8_t readArray[7];
-  int readValue;
 
   retVal = registerReadNBytes(0x00, 0x7a, 4, readArray, 7);
   if (retVal != SUCCESS) {
@@ -849,7 +837,6 @@ int UpbeatLabs_MCP39F521::readAccumulationIntervalRegister(int *value)
 {
   int retVal = 0;
   uint8_t readArray[5];
-  int readValue;
 
   retVal = registerReadNBytes(0x00, 0x9e, 2, readArray, 5);
   if (retVal != SUCCESS) {
@@ -903,9 +890,7 @@ int UpbeatLabs_MCP39F521::setAccumulationIntervalRegister(int value)
 
 int UpbeatLabs_MCP39F521::readDesignConfigurationRegisters(UpbeatLabs_MCP39F521_DesignConfigData *output)
 {
-  uint8_t aucWriteDataBuf[8];
   uint8_t aucReadDataBuf[35];
-  int i;
   int retval = 0;
 
   retval = registerReadNBytes(0x00, 0x82, 20, aucReadDataBuf, 35);
@@ -1046,7 +1031,6 @@ int UpbeatLabs_MCP39F521::writePhaseCompensation(int16_t phaseCompensation)
 int UpbeatLabs_MCP39F521::readAndSetTemperature()
 {
   int retVal = 0;
-  int16_t phaseComp, phaseCompNew;
   uint8_t byteArray[5];
 
   retVal = registerReadNBytes(0x00, 0x0a, 2, byteArray, 5);
@@ -1372,7 +1356,6 @@ int UpbeatLabs_MCP39F521::registerWriteNBytes(int addressHigh, int addressLow,
   Wire.requestFrom(i2c_addr, (uint8_t)1);
   aucReadDataBuf[0] = Wire.read();
   
-  int error = SUCCESS;
   uint8_t header = aucReadDataBuf[0];
 
   return checkHeader(header);
@@ -1388,7 +1371,6 @@ int UpbeatLabs_MCP39F521::issueAckNackCommand(int command)
   uint8_t aucWriteDataBuf[4];
   uint8_t aucReadDataBuf[1];
   int i;
-  uint32_t checksumTotal = 0;
 
   aucWriteDataBuf[0] = 0xa5; // Header
   aucWriteDataBuf[1] = 0x04; // Num bytes
@@ -1412,7 +1394,6 @@ int UpbeatLabs_MCP39F521::issueAckNackCommand(int command)
   if (requestDataLength==1) {
     aucReadDataBuf[0] = Wire.read();
 
-    int error = 0;
     uint8_t header = aucReadDataBuf[0];
 
     return checkHeader(header);
@@ -1433,10 +1414,12 @@ int UpbeatLabs_MCP39F521::checkHeaderAndChecksum( int numBytesToRead,
 {
   int i;
   uint16_t checksumTotal = 0;
+  (void) byteArraySize;
   
   uint8_t header = byteArray[0];
   uint8_t dataLen = byteArray[1];
   uint8_t checksum = byteArray[numBytesToRead + 3 - 1];
+  (void) dataLen;
   
   for (i = 0; i < numBytesToRead + 3 - 1; i++) {
     checksumTotal += byteArray[i];
