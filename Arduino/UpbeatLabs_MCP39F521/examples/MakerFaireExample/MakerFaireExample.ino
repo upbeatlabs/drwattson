@@ -248,15 +248,14 @@ void loop() {
   }
   
   if (readData) {
-    UpbeatLabs_MCP39F521_Data data;
+    UpbeatLabs_MCP39F521_Data data = {};
     UpbeatLabs_MCP39F521_FormattedData fData;
 
-    UpbeatLabs_MCP39F521_AccumData aData;
+    UpbeatLabs_MCP39F521_AccumData aData = {};
     UpbeatLabs_MCP39F521_FormattedAccumData afData;
 
     
     int readMCPretval = wattson.read(&data, &aData);
-    unsigned long currentMillis = millis();
     RTC.readTime();
     
     if (readMCPretval == UpbeatLabs_MCP39F521::SUCCESS) {

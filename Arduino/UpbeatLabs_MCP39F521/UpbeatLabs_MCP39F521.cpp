@@ -73,7 +73,7 @@ void UpbeatLabs_MCP39F521::begin(uint8_t _addr)
     // other than the default (2), note the correction
     // factor that has to be applied to the energy
     // accumulation.
-    int accumIntervalReg; 
+    uint16_t accumIntervalReg = 0; 
     
     retVal = readAccumulationIntervalRegister(&accumIntervalReg);
     
@@ -301,8 +301,8 @@ int UpbeatLabs_MCP39F521::setEventConfigurationRegister(uint32_t value)
   if (retVal != SUCCESS) {
     return retVal;
   } else {
-    readValue = ((uint32_t)(readArray[5] << 24) | (uint32_t)(readArray[4] << 16) |
-                 (uint32_t)(readArray[3] << 8) | readArray[2]);
+    readValue = (((uint32_t)readArray[5] << 24) | ((uint32_t)readArray[4] << 16) |
+                 ((uint32_t)readArray[3] << 8) | (uint32_t)readArray[2]);
   }
 
   retVal = registerWriteNBytes(0x00, 0x7e, 4, byteArray);
@@ -311,8 +311,8 @@ int UpbeatLabs_MCP39F521::setEventConfigurationRegister(uint32_t value)
   }
 
   retVal = registerReadNBytes(0x00, 0x7e, 4, readArray, 7);
-  readValue = ((uint32_t)(readArray[5] << 24) | (uint32_t)(readArray[4] << 16) |
-               (uint32_t)(readArray[3] << 8) | readArray[2]);
+  readValue = (((uint32_t)readArray[5] << 24) | ((uint32_t)readArray[4] << 16) |
+               ((uint32_t)readArray[3] << 8) | (uint32_t)readArray[2]);
 
   if (readValue != value) {
     return ERROR_SET_VALUE_MISMATCH;
@@ -565,7 +565,7 @@ int UpbeatLabs_MCP39F521::enableEnergyAccumulation(bool enable)
   // other than the default (2), note the correction
   // factor that has to be applied to the energy
   // accumulation.
-  int accumIntervalReg; 
+  uint16_t accumIntervalReg = 0; 
 
   retVal = readAccumulationIntervalRegister(&accumIntervalReg);
 
@@ -742,8 +742,8 @@ int UpbeatLabs_MCP39F521::readCalibrationRegisters(UpbeatLabs_MCP39F521_Calibrat
 // are performing your own calibration, and even so, it is better to use the
 // auto-calibration methods instead. This is one big gun to shoot yourself, be warned!
 
-int UpbeatLabs_MCP39F521::writeGains(int gainCurrentRMS, int gainVoltageRMS,
-                                     int gainActivePower, int gainReactivePower)
+int UpbeatLabs_MCP39F521::writeGains(uint16_t gainCurrentRMS, uint16_t gainVoltageRMS,
+                                     uint16_t gainActivePower, uint16_t gainReactivePower)
 {
   int retVal;
   uint8_t byteArray[8];
@@ -833,7 +833,7 @@ int UpbeatLabs_MCP39F521::setSystemConfigurationRegister(uint32_t value)
 // You will not be modifying this unless you are performing a
 // calibration. 
 
-int UpbeatLabs_MCP39F521::readAccumulationIntervalRegister(int *value)
+int UpbeatLabs_MCP39F521::readAccumulationIntervalRegister(uint16_t *value)
 {
   int retVal = 0;
   uint8_t readArray[5];
@@ -853,12 +853,12 @@ int UpbeatLabs_MCP39F521::readAccumulationIntervalRegister(int *value)
 // You will not be modifying this unless you are performing a
 // calibration. Use with caution!!
 
-int UpbeatLabs_MCP39F521::setAccumulationIntervalRegister(int value)
+int UpbeatLabs_MCP39F521::setAccumulationIntervalRegister(uint16_t value)
 {
   int retVal = 0;
   uint8_t byteArray[2];
   uint8_t readArray[5];
-  int readValue;
+  uint16_t readValue;
   byteArray[0] = value & 0xFF;
   byteArray[1] = (value >> 8) & 0xFF;
 
@@ -905,19 +905,19 @@ int UpbeatLabs_MCP39F521::readDesignConfigurationRegisters(UpbeatLabs_MCP39F521_
     output->rangePower = aucReadDataBuf[4];
     output->rangeUnimplemented = aucReadDataBuf[5];
 
-    output->calibrationCurrent =  ((uint32_t)(aucReadDataBuf[9] << 24) |
-                                   (uint32_t)(aucReadDataBuf[8] << 16) |
-                                   (uint32_t)(aucReadDataBuf[7] << 8) |
+    output->calibrationCurrent =  (((uint32_t)aucReadDataBuf[9] << 24) |
+                                   ((uint32_t)aucReadDataBuf[8] << 16) |
+                                   ((uint32_t)aucReadDataBuf[7] << 8) |
                                    aucReadDataBuf[6]);
 
     output->calibrationVoltage = ((aucReadDataBuf[11] << 8) | aucReadDataBuf[10]);
-    output->calibrationPowerActive =  ((uint32_t)(aucReadDataBuf[15] << 24) |
-                                       (uint32_t)(aucReadDataBuf[14] << 16) |
-                                       (uint32_t)(aucReadDataBuf[13] << 8) |
+    output->calibrationPowerActive =  (((uint32_t)aucReadDataBuf[15] << 24) |
+                                       ((uint32_t)aucReadDataBuf[14] << 16) |
+                                       ((uint32_t)aucReadDataBuf[13] << 8) |
                                        aucReadDataBuf[12]);
-    output->calibrationPowerReactive =  ((uint32_t)(aucReadDataBuf[19] << 24) |
-                                         (uint32_t)(aucReadDataBuf[18] << 16) |
-                                         (uint32_t)(aucReadDataBuf[17] << 8) |
+    output->calibrationPowerReactive =  (((uint32_t)aucReadDataBuf[19] << 24) |
+                                         ((uint32_t)aucReadDataBuf[18] << 16) |
+                                         ((uint32_t)aucReadDataBuf[17] << 8) |
                                          aucReadDataBuf[16]);
     output->lineFrequencyRef = ((aucReadDataBuf[21] << 8) | aucReadDataBuf[20]);
 
@@ -1177,12 +1177,12 @@ int UpbeatLabs_MCP39F521::factoryReset()
 
 typedef struct UpbeatLabs_MCP39F521_CalibrationConfig {
   uint32_t systemConfig;
-  int accumInt;
+  uint16_t accumInt;
   UpbeatLabs_MCP39F521_DesignConfigData designConfigData;
-  int gainCurrentRMS;
-  int gainVoltageRMS;
-  int gainActivePower;
-  int gainReactivePower;
+  uint16_t gainCurrentRMS;
+  uint16_t gainVoltageRMS;
+  uint16_t gainActivePower;
+  uint16_t gainReactivePower;
   int16_t phaseCompensation;
 } UpbeatLabs_MCP39F521_CalibrationConfig; 
 

@@ -246,16 +246,16 @@ public:
   
   int readCalibrationRegisters(UpbeatLabs_MCP39F521_CalibrationData *output);
   
-  int writeGains(int gainCurrentRMS, int gainVoltageRMS,
-                 int gainActivePower, int gainReactivePower);
+  int writeGains(uint16_t gainCurrentRMS, uint16_t gainVoltageRMS,
+                 uint16_t gainActivePower, uint16_t gainReactivePower);
 
   int readSystemConfigRegister(uint32_t *value);
 
   int setSystemConfigurationRegister(uint32_t value);
 
-  int readAccumulationIntervalRegister(int *value);
+  int readAccumulationIntervalRegister(uint16_t *value);
 
-  int setAccumulationIntervalRegister(int value);
+  int setAccumulationIntervalRegister(uint16_t value);
 
   int readDesignConfigurationRegisters(UpbeatLabs_MCP39F521_DesignConfigData *output);
   

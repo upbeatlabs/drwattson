@@ -53,7 +53,7 @@ void setup() {
   
   wattson.begin(); // Pass in the appropriate address. Defaults to 0x74
 
-  int accumIntervalReg; 
+  uint16_t accumIntervalReg; 
 
   wattson.readAccumulationIntervalRegister(&accumIntervalReg);
 

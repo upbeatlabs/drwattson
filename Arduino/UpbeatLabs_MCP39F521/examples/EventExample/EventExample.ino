@@ -117,7 +117,7 @@ void setup() {
 void loop() {
   int retVal = UpbeatLabs_MCP39F521::SUCCESS;
   
-  UpbeatLabs_MCP39F521_Data data;
+  UpbeatLabs_MCP39F521_Data data = {};
   retVal = wattson.read(&data, NULL);
   if (retVal != UpbeatLabs_MCP39F521::SUCCESS) {
     Serial.print("Error reading energy data: "); Serial.println(retVal);
