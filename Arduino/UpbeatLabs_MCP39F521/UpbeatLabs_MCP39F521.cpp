@@ -612,6 +612,8 @@ int UpbeatLabs_MCP39F521::isEnergyAccumulationEnabled(bool *enabled)
 void UpbeatLabs_MCP39F521::convertRawData(UpbeatLabs_MCP39F521_Data *data,
                                           UpbeatLabs_MCP39F521_FormattedData *fData)
 {
+  fData->systemStatus = data->systemStatus;
+  fData->systemVersion = data->systemVersion;  
   fData->voltageRMS = data->voltageRMS/10.0f;
   fData->currentRMS = data->currentRMS/10000.0f;
   fData->lineFrequency = data->lineFrequency/1000.0f;

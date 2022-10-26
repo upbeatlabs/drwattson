@@ -10,10 +10,12 @@
 
   In this example, we enable Voltage Sag, Voltage Surge, Over Current and Over Power
   events, and also set the appropriate limits when these events will get generated. 
-  Voltage sag if voltage drops below 80v, Over current if current goes above 0.18 amps, 
+  Voltage sag if voltage drops below 80v, Voltage Surge if the voltage goes above
+  130v, Over current if current goes above 0.18 amps, 
   and Over Power if active power goes above 16 watts. When the event of interest happens
   you can see appropriate messages in the Serial output. The messages continue as long as 
-  the event persists. 
+  the event persists. The EVENT_LED will also stay lit when the triggering event condition
+  persists and turns off when the event is cleared
 
   To trigger the Voltage Sag event, you can turn off power to your input. 
   To trigger Over Current and Over Power, you can turn on the load on your output. 
@@ -46,16 +48,22 @@
 #include <Wire.h>
 #include "UpbeatLabs_MCP39F521.h"
 
-// Pin 13 has an LED connected on most Arduino boards.
-// give it a name:
-int led = 13;
+// Use onboard LED 13 as the EVENT NOTIFICATION led
+int EVENT_LED = 13;
+
+#define OVER_CURRENT_LIMIT  1800  // 0.18a
+#define OVER_POWER_LIMIT    1600    // 16w
+#define VOLTAGE_SAG_LIMIT   800    // 80v
+#define VOLTAGE_SURGE_LIMIT 1300 // 130v
 
 UpbeatLabs_MCP39F521 wattson = UpbeatLabs_MCP39F521();
-UpbeatLabs_MCP39F521_EventFlagLimits eventFlagLimits;
+UpbeatLabs_MCP39F521_EventFlagLimits eventFlagLimits = {};
+
+bool eventTriggered = false;
 
 void setup() {                
   // initialize the digital pin as an output.
-  pinMode(led, OUTPUT);     
+  pinMode(EVENT_LED, OUTPUT);     
   attachInterrupt(1, eventCB, CHANGE);
   Serial.begin(9600);  //turn on serial communication
   Serial.println("Upbeat Labs Dr. Wattson Event Example Sketch");
@@ -65,40 +73,22 @@ void setup() {
 
   uint32_t eventData = 0;
   int retVal = UpbeatLabs_MCP39F521::SUCCESS;
-    
-  retVal = wattson.setEventConfigurationRegister(eventData);
-
-  retVal = wattson.readEventConfigRegister(&eventData);
-  if (retVal != UpbeatLabs_MCP39F521::SUCCESS) {
-    Serial.print("Error reading config register: "); Serial.println(retVal);
-  }
-  Serial.print("Event data: "); Serial.println(eventData);
-
-  retVal = wattson.readEventFlagLimitRegisters(&eventFlagLimits);
-  if (retVal != UpbeatLabs_MCP39F521::SUCCESS) {
-    Serial.print("Error reading event flag limit registers: "); Serial.println(retVal);
-  }
-  Serial.print("Voltage Sag Limit: ");
-  Serial.println(eventFlagLimits.voltageSagLimit/10.0f, 4);
   
-  Serial.print("Voltage Surge Limit: ");
-  Serial.println(eventFlagLimits.voltageSurgeLimit/10.f, 4);
-  
-  Serial.print("Over Current Limit: ");
-  Serial.println(eventFlagLimits.overCurrentLimit/10000.0f, 4);
-  
-  Serial.print("Over Power Limit: ");
-  Serial.println(eventFlagLimits.overPowerLimit/100.0f, 4);
-
-  Serial.println("Set Event Flags...");
-  eventFlagLimits.overCurrentLimit = 1800; // 0.18a
-  eventFlagLimits.overPowerLimit = 1600; // 16w
+  Serial.println("Set Event Thresholds ...");
+  eventFlagLimits.voltageSagLimit = VOLTAGE_SAG_LIMIT;
+  eventFlagLimits.voltageSurgeLimit = VOLTAGE_SURGE_LIMIT;
+  eventFlagLimits.overCurrentLimit = OVER_CURRENT_LIMIT; 
+  eventFlagLimits.overPowerLimit = OVER_POWER_LIMIT; 
 
   retVal = wattson.writeEventFlagLimitRegisters(&eventFlagLimits);
+  if (retVal != UpbeatLabs_MCP39F521::SUCCESS) {
+    Serial.print("Error writing event thresholds!: "); Serial.println(retVal);
+  }  
+  
+  // Print out the current thresholds
+  printEventConfig(&eventFlagLimits);  
 
-  UpbeatLabs_MCP39F521_DesignConfigData dData;
-  retVal = wattson.readDesignConfigurationRegisters(&dData);
-
+  // Turn on various event notifications
   // Map Voltage Sag Event to event pin
   bitSet(eventData, UpbeatLabs_MCP39F521::EVENT_VSAG_PIN);
   // Map Voltage Surge Event to event pin
@@ -107,25 +97,32 @@ void setup() {
   bitSet(eventData, UpbeatLabs_MCP39F521::EVENT_OVERCUR_PIN);
   // Map Over Power Event to event pin
   bitSet(eventData, UpbeatLabs_MCP39F521::EVENT_OVERPOW_PIN);
-  
-  Serial.print("Event Config Register set to ");
-  Serial.println(eventData);
     
   retVal = wattson.setEventConfigurationRegister(eventData);
+  if (retVal != UpbeatLabs_MCP39F521::SUCCESS) {
+    Serial.print("Error writing event configuration!: "); Serial.println(retVal);
+  }    
+  
+  Serial.print("Event Config Register set to "); Serial.println(eventData);
+  
 }
  
 void loop() {
-  int retVal = UpbeatLabs_MCP39F521::SUCCESS;
-  
-  UpbeatLabs_MCP39F521_Data data = {};
-  retVal = wattson.read(&data, NULL);
-  if (retVal != UpbeatLabs_MCP39F521::SUCCESS) {
-    Serial.print("Error reading energy data: "); Serial.println(retVal);
-  }
 
-  checkSystemStatus(data.systemStatus);
-  
-  delay(1000);
+  int retVal = UpbeatLabs_MCP39F521::SUCCESS;
+
+  if (eventTriggered) {
+    // If an event has been triggered, we can read the systemStatus
+    // to see which conditions have been triggered
+    UpbeatLabs_MCP39F521_Data data = {};
+    retVal = wattson.read(&data, NULL);
+    if (retVal != UpbeatLabs_MCP39F521::SUCCESS) {
+      Serial.print("Error reading energy data: "); Serial.println(retVal);
+    }
+    checkSystemStatus(data.systemStatus);
+    delay(1000); // So we are not bombarded with event messages when still triggered
+  }
+  delay(100);
 
 
 }
@@ -134,37 +131,65 @@ void loop() {
 
 void eventCB() {
   int state = digitalRead(3);
-  digitalWrite(led, state);
+  digitalWrite(EVENT_LED, state);
+  eventTriggered = (state == HIGH);
 } 
 
 
 void checkSystemStatus(uint16_t systemStatus)
 {
   if (bitRead(systemStatus, UpbeatLabs_MCP39F521::SYSTEM_EVENT) == 1) {
-    Serial.println("event bit set"); 
+    Serial.println("EVENT has occurred!"); 
   }
 
   if (bitRead(systemStatus, UpbeatLabs_MCP39F521::SYSTEM_VSAG) == 1) {
-    Serial.println("VSAG bit set"); 
+    Serial.println("Voltage SAG condition"); 
   }
 
   if (bitRead(systemStatus, UpbeatLabs_MCP39F521::SYSTEM_VSURGE) == 1) {
-    Serial.println("VSURGE bit set"); 
+    Serial.println("Voltage Surge condition"); 
   }
 
   if (bitRead(systemStatus, UpbeatLabs_MCP39F521::SYSTEM_OVERCUR) == 1) {
-    Serial.println("OVERCUR bit set"); 
+    Serial.println("Over Current condition"); 
   }
 
   if (bitRead(systemStatus, UpbeatLabs_MCP39F521::SYSTEM_OVERPOW) == 1) {
-    Serial.println("OVERPOW bit set"); 
-  }
-  
-  if (bitRead(systemStatus, UpbeatLabs_MCP39F521::SYSTEM_SIGN_PA) == 1) {
-    Serial.println("SIGN_PA bit set"); 
+    Serial.println("Over Power condition"); 
   }
 
-  if (bitRead(systemStatus, UpbeatLabs_MCP39F521::SYSTEM_SIGN_PR) == 1) {
-    Serial.println("SIGN_PR bit set"); 
+  // The sign of the active/reaction power is also indicated in the system
+  // status register. This can tell us in which quadrant our power is.
+  // We only want to do this when we have power - i.e when there is a
+  // voltage sag, let's ignore this
+  if (bitRead(systemStatus, UpbeatLabs_MCP39F521::SYSTEM_VSAG) == 0) {
+    if (bitRead(systemStatus, UpbeatLabs_MCP39F521::SYSTEM_SIGN_PA) == 1) {
+      Serial.println("Active Power is positive (import)"); 
+    } else {
+      Serial.println("Active Power is negative (export)"); 
+    }
+
+    if (bitRead(systemStatus, UpbeatLabs_MCP39F521::SYSTEM_SIGN_PR) == 1) {
+      Serial.println("Reactive power is positive, inductive"); 
+    } else {
+      Serial.println("Reactive power is negative, capacitive"); 
+    }
   }
+}
+
+void printEventConfig(UpbeatLabs_MCP39F521_EventFlagLimits *eventFlagLimits)
+{
+  Serial.print("Voltage Sag Limit: ");
+  Serial.println(eventFlagLimits->voltageSagLimit/10.0f, 4);
+  
+  Serial.print("Voltage Surge Limit: ");
+  Serial.println(eventFlagLimits->voltageSurgeLimit/10.f, 4);
+  
+  Serial.print("Over Current Limit: ");
+  Serial.println(eventFlagLimits->overCurrentLimit/10000.0f, 4);
+  
+  Serial.print("Over Power Limit: ");
+  Serial.println(eventFlagLimits->overPowerLimit/100.0f, 4);
+
+
 }
