@@ -4,18 +4,22 @@
 
   This example demonstrates enabling energy accumulation on Dr. Wattson.
 
+  You can turn on/off energy accumulation using the Serial Monitor input
+
   The sketch starts to poll the module for Energy data and prints it out. 
   For ease of seeing the values, use a program like screen to display 
   the Serial output. The serial writes the characters necessary to 
   clear the screen on a regular terminal, which means that the serial
   output will stay in place and just update over time. 
 
-  Turn on the input power to see the voltage RMS, line frequency values 
+  Turn on the power to see the voltage RMS, line frequency values 
   change to the appropriate values. 
 
   Turn on the load attached to your output to see current RMS, power factor, 
   active, reactive and apparent power values change. Also see the
-  accumulated energy data increasing with time when the load is on.
+  accumulated energy data increasing with time when the load is on. 
+  When you turn off/reset energy accumulation, the accumulated energy
+  data goes back to zero. 
 
   The communication happens over I2C. 2 pins are required to interface. 
   There are 4 selectable I2C address possibilities per board (selectable
@@ -38,42 +42,62 @@
 #include <Wire.h>
 #include "UpbeatLabs_MCP39F521.h"
 
-// Pin 13 has an LED connected on most Arduino boards.
-// give it a name:
-int led = 13;
+//  For ease of seeing the values, use a program like screen to display 
+//  the Serial output. The serial writes the characters necessary to 
+//  clear the screen on a regular terminal, which means that the serial
+//  output will stay in place and just update over time.
+//  In that case, set USING_SCREEN to true
+#define USING_SCREEN false
+
 
 UpbeatLabs_MCP39F521 wattson = UpbeatLabs_MCP39F521();
+bool energyAccumulationEnabled = false;
 
-void setup() {                
-  // initialize the digital pin as an output.
-  pinMode(led, OUTPUT);     
+void setup() {     
   Serial.begin(9600);  //turn on serial communication
   Serial.println("Upbeat Labs Dr. Wattson Energy Data Accumulation Example Sketch");
   Serial.println("***************************************************************");
   
   wattson.begin(); // Pass in the appropriate address. Defaults to 0x74
 
-  uint16_t accumIntervalReg; 
+  uint16_t accumIntervalReg;
+  int retVal = UpbeatLabs_MCP39F521::SUCCESS;
 
-  wattson.readAccumulationIntervalRegister(&accumIntervalReg);
-
+  retVal = wattson.readAccumulationIntervalRegister(&accumIntervalReg);
+  if (retVal != UpbeatLabs_MCP39F521::SUCCESS) {
+      Serial.print("Error reading accumulation interval: "); Serial.println(retVal);
+  }
   Serial.print("Accumulation interval is "); Serial.println(accumIntervalReg);
 
   delay(100);
 
-  // Turn off any previous energy accumulation
-  Serial.println("Turn off any previous accumulation");
-  wattson.enableEnergyAccumulation(false);
+  retVal = wattson.isEnergyAccumulationEnabled(&energyAccumulationEnabled);
+  if (retVal != UpbeatLabs_MCP39F521::SUCCESS) {
+      Serial.print("Error reading energy accumulation enabled: "); Serial.println(retVal);
+  }
+  Serial.print("Energy accumulation is ");
+  (energyAccumulationEnabled == true) ? Serial.println("ENABLED") : Serial.println("DISABLED");
 
-  // Wait for sometime for registers to reset before re-enabling them
-  delay(1000);
+  Serial.println("Turn ON/OFF Energy Acccumulation by entering 0/1 in the serial monitor input");
+  Serial.println();
   
-  // Turn on energy accumulation
-  Serial.println("Re-enable accumulation");
-  wattson.enableEnergyAccumulation(true);
 }
- 
+
+
 void loop() {
+  if (Serial.available()) {
+    int control = Serial.parseInt();
+    if (control == 0) {
+      Serial.println("Turn off & reset energy accumulation");
+      wattson.enableEnergyAccumulation(false);
+      energyAccumulationEnabled = false;
+    } else if (control == 1) {
+      Serial.println("Enable energy accumulation");
+      wattson.enableEnergyAccumulation(true);
+      energyAccumulationEnabled = true;      
+    }
+  }
+  
   UpbeatLabs_MCP39F521_Data data;
   UpbeatLabs_MCP39F521_FormattedData fData;
 
@@ -83,11 +107,14 @@ void loop() {
   int readMCPretval = wattson.read(&data, &aData);
   if (readMCPretval == UpbeatLabs_MCP39F521::SUCCESS) {
     // Print stuff out
-    Serial.write("\x1B" "c"); // Clear the screen on a regular terminal                               
+    if (USING_SCREEN) {
+      Serial.write("\x1B" "c"); // Clear the screen on a regular terminal
+    }
     wattson.convertRawData(&data, &fData);
     wattson.convertRawAccumData(&aData, &afData);
     printMCP39F521Data(&fData);
     printMCP39F521AccumData(&afData);
+    
   } else {
    Serial.println("Error!"); 
   }
@@ -105,7 +132,7 @@ void printMCP39F521Data(UpbeatLabs_MCP39F521_FormattedData *data)
   Serial.print(F("Power Factor = ")); Serial.println(data->powerFactor, 4);
   Serial.print(F("Active Power = ")); Serial.println(data->activePower, 4);
   Serial.print(F("Reactive Power = ")); Serial.println(data->reactivePower, 4);
-  Serial.print(F("Apparent Power = ")); Serial.println(data->apparentPower, 4);
+  Serial.print(F("Apparent Power = ")); Serial.println(data->apparentPower, 4); Serial.println();
 }
 
 void printMCP39F521AccumData(UpbeatLabs_MCP39F521_FormattedAccumData *data)
@@ -113,5 +140,5 @@ void printMCP39F521AccumData(UpbeatLabs_MCP39F521_FormattedAccumData *data)
   Serial.print("Active Energy Import = "); Serial.println(data->activeEnergyImport, 4);
   Serial.print("Active Energy Export = "); Serial.println(data->activeEnergyExport, 4);
   Serial.print("Reactive Energy Import = "); Serial.println(data->reactiveEnergyImport, 4);
-  Serial.print("Reactive Energy Export = "); Serial.println(data->reactiveEnergyExport, 4);
+  Serial.print("Reactive Energy Export = "); Serial.println(data->reactiveEnergyExport, 4); Serial.println();
 }

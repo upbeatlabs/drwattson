@@ -48,6 +48,14 @@
 #include <Wire.h>
 #include "UpbeatLabs_MCP39F521.h"
 
+
+//  For ease of seeing the values, use a program like screen to display 
+//  the Serial output. The serial writes the characters necessary to 
+//  clear the screen on a regular terminal, which means that the serial
+//  output will stay in place and just update over time.
+//  In that case, set USING_SCREEN to true
+#define USING_SCREEN false
+
 // Pin 13 has an LED connected on most Arduino boards.
 // give it a name:
 int led = 13;
@@ -72,7 +80,9 @@ void loop() {
   int readMCPretval = wattson.read(&data, NULL);
   if (readMCPretval == UpbeatLabs_MCP39F521::SUCCESS) {
     // Print stuff out
-    Serial.write("\x1B" "c"); // Clear the screen on a regular terminal                               
+    if (USING_SCREEN) {
+      Serial.write("\x1B" "c"); // Clear the screen on a regular terminal
+    }    
     wattson.convertRawData(&data, &fData);
     printMCP39F521Data(&fData);
   } else {
@@ -118,5 +128,5 @@ void printMCP39F521Data(UpbeatLabs_MCP39F521_FormattedData *data)
   Serial.print(F("Power Factor = ")); Serial.println(data->powerFactor, 4);
   Serial.print(F("Active Power = ")); Serial.println(data->activePower, 4);
   Serial.print(F("Reactive Power = ")); Serial.println(data->reactivePower, 4);
-  Serial.print(F("Apparent Power = ")); Serial.println(data->apparentPower, 4);
+  Serial.print(F("Apparent Power = ")); Serial.println(data->apparentPower, 4); Serial.println();
 }
