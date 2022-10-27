@@ -31,6 +31,7 @@
 import UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521 as UpbeatLabs_MCP39F521
 import subprocess as sp
 import time
+import signal
 
 import Adafruit_GPIO.SPI as SPI
 import Adafruit_SSD1306
@@ -50,58 +51,73 @@ disp = Adafruit_SSD1306.SSD1306_128_64(rst=RST, dc=DC, spi=SPI.SpiDev(SPI_PORT, 
 
 wattson = UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521()
 
-# Initialize library.
-disp.begin()
+def main():
 
-# Clear display.
-disp.clear()
-disp.display()
+    # Initialize library.
+    disp.begin()
 
-# Create blank image for drawing.
-# Make sure to create image with mode '1' for 1-bit color.
-width = disp.width
-height = disp.height
-image = Image.new('1', (width, height))
+    # Clear display.
+    disp.clear()
+    disp.display()
 
-# Get drawing object to draw on image.
-draw = ImageDraw.Draw(image)
+    # Create blank image for drawing.
+    # Make sure to create image with mode '1' for 1-bit color.
+    width = disp.width
+    height = disp.height
+    image = Image.new('1', (width, height))
 
-# Draw a black filled box to clear the image.
-draw.rectangle((0,0,width,height), outline=0, fill=0)
+    # Get drawing object to draw on image.
+    draw = ImageDraw.Draw(image)
 
-# First define some constants to allow easy resizing of shapes.
-padding = 2
-shape_width = 20
-top = padding
-bottom = height-padding
-# Move left to right keeping track of the current x position for drawing shapes.
-x = padding
-
-# Load default font.
-font = ImageFont.load_default()
-
-while(1):
+    # Draw a black filled box to clear the image.
     draw.rectangle((0,0,width,height), outline=0, fill=0)
 
-    tmp = sp.call('clear',shell=True)
-    (ret, result) = wattson.readEnergyData()
-    print "VoltageRMS = " + str(result.voltageRMS)
-    print "CurrentRMS = " + str(result.currentRMS)
-    print "LineFrequency = " + str(result.lineFrequency)
-    print "PowerFactor = " + str(result.powerFactor)
-    print "ActivePower = " + str(result.activePower)
-    print "ReactivePower = " + str(result.reactivePower)
-    print "ApparentPower = " + str(result.apparentPower)
-    # Write two lines of text.
-    draw.text((x, top),    str("{:.2f}".format(result.voltageRMS)) + ' V @ ' + str("{:.2f}".format(result.lineFrequency)) + ' Hz',  font=font, fill=255)
-    draw.text((x, top+10), 'Irms: ' + str("{:.4f}".format(result.currentRMS)) + ' A', font=font, fill=255)
-    draw.text((x, top+20), 'PF: ' + str("{:.2f}".format(result.powerFactor)), font=font, fill=255)
-    draw.text((x, top+30), 'ActiveP: ' + str("{:.2f}".format(result.activePower)) + 'W', font=font, fill=255)
-    draw.text((x, top+40), 'ReactiveP: ' + str("{:.2f}".format(result.reactivePower)) + 'W', font=font, fill=255)
-    draw.text((x, top+50), 'ApparentP: ' + str("{:.2f}".format(result.apparentPower)) + 'W', font=font, fill=255)
+    # First define some constants to allow easy resizing of shapes.
+    padding = 2
+    shape_width = 20
+    top = padding
+    bottom = height-padding
+    # Move left to right keeping track of the current x position for drawing shapes.
+    x = padding
+
+    # Load default font.
+    font = ImageFont.load_default()
+
+    while(1):
+        draw.rectangle((0,0,width,height), outline=0, fill=0)
+
+        tmp = sp.call('clear',shell=True)
+        (ret, result) = wattson.readEnergyData()
+        print("VoltageRMS = {:5.2f}".format(result.voltageRMS))
+        print("CurrentRMS = {:5.2f}".format(result.currentRMS))
+        print("LineFrequency ={:5.2f}".format(result.lineFrequency))
+        print("PowerFactor = {:5.2f}".format(result.powerFactor))
+        print("ActivePower = {:5.2f}".format(result.activePower))
+        print("ReactivePower = {:5.2f}".format(result.reactivePower))
+        print("ApparentPower = {:5.2f}".format(result.apparentPower))
+        # Write two lines of text.
+        draw.text((x, top),    str("{:.2f}".format(result.voltageRMS)) + ' V | ' + str("{:.2f}".format(result.lineFrequency)) + ' Hz',  font=font, fill=255)
+        draw.text((x, top+10), str("{:.4f}".format(result.currentRMS)) + ' A | PF: ' + str("{:.2f}".format(result.powerFactor)), font=font, fill=255)
+        draw.text((x, top+20), '--------------------', font=font, fill=255)
+        draw.text((x, top+30), str("{:.2f} W".format(result.activePower)), font=font, fill=255)
+        draw.text((x, top+40), str("{:.2f} VAR".format(result.reactivePower)), font=font, fill=255)
+        draw.text((x, top+50), str("{:.2f} VA".format(result.apparentPower)), font=font, fill=255)
 
 
-    # Display image.
-    disp.image(image)
-    disp.display()   
-    time.sleep(1); 
+        # Display image.
+        disp.image(image)
+        disp.display()   
+        time.sleep(1); 
+
+
+# gracefully exit without a big exception message if possible
+def ctrl_c_handler(signal, frame):
+    print('Goodbye!')
+    disp.clear()
+    disp.display()
+    exit(0)
+
+signal.signal(signal.SIGINT, ctrl_c_handler)
+
+if __name__ == '__main__':
+    main()    

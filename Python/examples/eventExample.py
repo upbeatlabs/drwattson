@@ -10,14 +10,16 @@
 
 #   In this example, we enable Voltage Sag, Voltage Surge, Over Current and Over Power
 #   events, and also set the appropriate limits when these events will get generated. 
-#   Voltage sag if voltage drops below 80v, Over current if current goes above 0.18 amps, 
+#   Voltage sag if voltage drops below 80v, Voltage Surge if the voltage goes above
+#   130v, Over current if current goes above 0.18 amps, 
 #   and Over Power if active power goes above 16 watts. When the event of interest happens
 #   you can see appropriate messages in the output. The messages continue as long as 
-#   the event persists. 
+#   the event persists.  The EVENT_LED will also stay lit when the triggering event condition
+#   persists and turns off when the event is cleared
 
 #   To trigger the Voltage Sag event, you can turn off power to your input. 
 #   To trigger Over Current and Over Power, you can turn on the load on your output. 
-#   The limits were set to be above the current and active power consumption of a 14w
+#   The limits were set to be above the current and active power consumption of a
 #   CFL bulb - you can set appropriate limits for your load of choice. 
 
 #   To stop the Voltage Sag event, turn on the input power to restore voltage back. 
@@ -60,21 +62,30 @@ LED_PIN = 4
 ZCD_PIN = 23
 EVENT_PIN = 24
 
+OVER_CURRENT_LIMIT  = 1800  # 0.18a
+OVER_POWER_LIMIT    = 1600  # 16w
+VOLTAGE_SAG_LIMIT   =  800   # 80v
+VOLTAGE_SURGE_LIMIT = 1300  # 130v
 
+eventTriggered = False
 
 def main():
+    global eventTriggered
     initialize()
     setSystemConfig()
     
     while(True):
         tmp = sp.call('clear',shell=True)
+        if (eventTriggered):
+            # If an event has been triggered, we can read the systemStatus
+            # to see which conditions have been triggered            
 
-        (retVal, data) = wattson.readEnergyData()
+            (retVal, data) = wattson.readEnergyData()
      
-        if (retVal != UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521.Error_code.SUCCESS.value):
-            print("Error reading energy data: {}".format(retVal))
+            if (retVal != UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521.Error_code.SUCCESS.value):
+                print("Error reading energy data: {}".format(retVal))
 
-        checkSystemStatus(data.systemStatus);
+            checkSystemStatus(data.systemStatus);
     
         time.sleep(1);
 
@@ -94,8 +105,11 @@ def cleanup():
     GPIO.cleanup()
 
 def event_handler(pin):
+    global eventTriggered
     state = GPIO.input(pin)
-    GPIO.output(LED_PIN, state)      
+    GPIO.output(LED_PIN, state)
+    eventTriggered = state;
+    
 
 def setSystemConfig():
       (retVal, eventData) = wattson.readEventConfigRegister()
@@ -107,8 +121,10 @@ def setSystemConfig():
       print("voltageSagLimit = {0}, voltageSurgeLimit = {1}, overCurrentLimit = {2}, overPowerLimit = {3}".format(
             eventFlagLimits.voltageSagLimit, eventFlagLimits.voltageSurgeLimit, eventFlagLimits.overCurrentLimit, eventFlagLimits.overPowerLimit))
 
-      eventFlagLimits.overCurrentLimit = 1800 # 0.18a
-      eventFlagLimits.overPowerLimit = 1600 # 16w
+      eventFlagLimits.voltageSagLimit = VOLTAGE_SAG_LIMIT
+      eventFlagLimits.voltageSurgeLimit = VOLTAGE_SURGE_LIMIT      
+      eventFlagLimits.overCurrentLimit = OVER_CURRENT_LIMIT
+      eventFlagLimits.overPowerLimit = OVER_POWER_LIMIT
       retVal = wattson.writeEventFlagLimitRegisters(eventFlagLimits);
 
       eventData = 0
@@ -141,32 +157,40 @@ def bitWrite(value, bit, bitValue):
     return bitSet(value, bit) if bitValue else bitClear(value, bit)
 
 
-def checkSystemStatus(systemStatus):
-    print("System Status value is {}".format(systemStatus))
+def checkSystemStatus(systemStatus):    
     if (bitRead(systemStatus, UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521.System_status.SYSTEM_EVENT.value) == 1):
-        print("event bit set") 
+        print("EVENT has occurred!") 
   
     if (bitRead(systemStatus, UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521.System_status.SYSTEM_VSAG.value) == 1):
-        print("VSAG bit set") 
+        print("Voltage Sag condition") 
   
     if (bitRead(systemStatus, UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521.System_status.SYSTEM_VSURGE.value) == 1):
-        print("VSURGE bit set") 
+        print("Voltage Surge condition") 
   
 
     if (bitRead(systemStatus, UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521.System_status.SYSTEM_OVERCUR.value) == 1):
-        print("OVERCUR bit set") 
+        print("Over Current condition") 
   
 
     if (bitRead(systemStatus, UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521.System_status.SYSTEM_OVERPOW.value) == 1):
-        print("OVERPOW bit set") 
+        print("Over Power condition") 
   
-  
-    if (bitRead(systemStatus, UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521.System_status.SYSTEM_SIGN_PA.value) == 1):
-        print("SIGN_PA bit set") 
+    # The sign of the active/reaction power is also indicated in the system
+    # status register. This can tell us in which quadrant our power is.
+    # We only want to do this when we have power - i.e when there is a
+    # voltage sag, let's ignore this
+    if (bitRead(systemStatus, UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521.System_status.SYSTEM_VSAG.value) == 0):
+    
+        if (bitRead(systemStatus, UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521.System_status.SYSTEM_SIGN_PA.value) == 1):
+            print("Active Power is positive (import)")
+        else:
+            print("Active Power is negative (export)")
   
 
-    if (bitRead(systemStatus, UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521.System_status.SYSTEM_SIGN_PR.value) == 1):
-        print("SIGN_PR bit set") 
+        if (bitRead(systemStatus, UpbeatLabs_MCP39F521.UpbeatLabs_MCP39F521.System_status.SYSTEM_SIGN_PR.value) == 1):
+            print("Reactive power is positive, inductive")
+        else:
+            print("Reactive power is negative, capacitive")
   
 
 # gracefully exit without a big exception message if possible
