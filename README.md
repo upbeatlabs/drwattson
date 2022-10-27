@@ -1,6 +1,6 @@
 # Upbeat Labs Dr. Wattson Energy Monitoring Board Library
 
-Libraries for use with *Dr. Wattson Energy Monitoring Board*
+** Please note! The repository has been updated to split out the libraries into their own github repositories. If you have been using this before for all the source code, please move over to cloning/forking the new repositories instead! This repository will be used to store the details pertaining to Dr. Wattson, such as the User Manual, the README, and other pertinent information**
 
 Dr. Wattson is an Energy Monitoring Board for Arduino, Raspberry Pi and other Maker-Friendly Microcontrollers. Easily integrate quality AC energy measurements into your next project!
 
@@ -17,11 +17,24 @@ If you are a more advanced user, you have a wide range of functionality availabl
 
 ## Contents
 
-* **Arduino/** - contains library and examples for use with Arduino
 * **LICENSE** - the license file (BSD 3-clause license)
 * **README.md** - this file!
-* **DrWattsonUserManual.pdf** - the User Manual for Dr. Wattson
-* **Python/** - contains library and examples for use with Raspberry Pi library (or BeagleBone Black)
+* **DrWattsonUserManual.pdf** - the User Manual for Dr. Wattson. It has all the information you need to get started with Dr. Wattson!
+
+## Libraries
+
+The following libraries are currently available:
+
+* Arduino - [UpbeatLabs_MCP39F521](https://github.com/upbeatlabs/UpbeatLabs_MCP39F521)
+* Python - [UpbeatLabs_Python_MCP39F521](https://github.com/upbeatlabs/UpbeatLabs_Python_MCP39F521) (using smbus2). Use with Raspberry Pi and other single-board computers (like BeagleBone Black)
+
+The libraries come with lots of examples:
+* Getting energy data - "Hello World" example to get metering data from your Dr. Wattson, including Voltage RMS, Current RMS, Power Factor, Active Power, Reactive Power with a simple call
+* Events - Get event callback interrupt notifications for different conditions like Voltage Sag (for example Power outage), Voltage Surge, Over Current and Over Power over specified thresholds and figure out which conditions were triggered
+* Energy Accumulation - Turn on the energy accumulator to get cumulative energy consumption for Active and Reactive Energy
+* EEPROM - Write to and read from 512 bytes of EEPROM memory available on MCP39F521 (organized as 32 pages of 16 bytes each). The library abstracts out the details and makes the usage very simple
+* Data logger - Get energy data and log it in CSV format to an SD card, using an RTC to note the time of observation. Turn on/off data recording with a button, and the example includes log rotation.
+* AWS IoT - Send energy data to AWS IoT over MQTT (on Raspberry Pi using the Python version)
 
 ## License
 
