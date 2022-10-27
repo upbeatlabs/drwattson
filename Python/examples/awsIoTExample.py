@@ -160,7 +160,7 @@ while True:
     (ret, result) = wattson.readEnergyData()
 
     JSONPayload = '{{"state":{{"reported":{{"voltageRMS":{0}, "currentRMS":{1}, "lineFrequency":{2}, "powerFactor":{3}, "activePower":{4}, "reactivePower":{5}, "apparentPower":{6} }} }} }}'.format(result.voltageRMS, result.currentRMS, result.lineFrequency, result.powerFactor, result.activePower, result.reactivePower, result.apparentPower)
-    print JSONPayload
+    print(JSONPayload)
     deviceShadowHandler.shadowUpdate(JSONPayload, None, 5)
     loopCount += 1
     time.sleep(1)
