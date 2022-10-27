@@ -1,6 +1,6 @@
 # Upbeat Labs Dr. Wattson Energy Monitoring Board Library
 
-** Please note! The repository has been updated to split out the libraries into their own github repositories. If you have been using this before for all the source code, please move over to cloning/forking the new repositories instead! This repository will be used to store the details pertaining to Dr. Wattson, such as the User Manual, the README, and other pertinent information**
+** Please note! The repository has been updated to split out the libraries into their own github repositories. If you have been using this before for all the source code, please move over to cloning/forking the new repositories instead! This repository will be used to store the details pertaining to Dr. Wattson, such as the User Manual, the README, and other pertinent information **
 
 Dr. Wattson is an Energy Monitoring Board for Arduino, Raspberry Pi and other Maker-Friendly Microcontrollers. Easily integrate quality AC energy measurements into your next project!
 
