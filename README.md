@@ -15,11 +15,16 @@ If you are a more advanced user, you have a wide range of functionality availabl
 
 [Learn more and get it here!](https://www.protostax.com/products/dr-wattson-energy-monitoring-board-v2/)
 
+![ProtoStax Enclosure for Dr. Wattson Energy Monitor](https://cdn.shopify.com/s/files/1/0082/6248/4004/products/DSC_9197.jpg?v=1665794822)
+
+[Learn more and get it here!](https://www.protostax.com/products/protostax-enclosure-for-dr-wattson-energy-monitor)
+
 ## Contents
 
 * **LICENSE** - the license file (BSD 3-clause license)
 * **README.md** - this file!
 * **DrWattsonUserManual.pdf** - the User Manual for Dr. Wattson. It has all the information you need to get started with Dr. Wattson!
+* **DrWattsonProtoStaxEnclosure.pdf** - the Instruction Manual for ProtoStax Enclosure for Dr. Wattson Energy Monitor.
 
 ## Libraries
 
